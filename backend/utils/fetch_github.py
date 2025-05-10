@@ -1,6 +1,7 @@
 import subprocess
 import os
 import fnmatch
+import shutil
 
 def change_permissions(path):
     for root, dirs, files in os.walk(path, topdown=False):
@@ -16,6 +17,8 @@ def clone_repo( repo_base:str, save_dir:str):
     """
     try:
         os.makedirs(save_dir, exist_ok=True)
+
+        shutil.rmtree(save_dir, ignore_errors=True) if os.path.exists(save_dir) else None
 
         auth_url = f"https://github.com/{repo_base}"
         print(f"Cloning repo from: {auth_url}")
