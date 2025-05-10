@@ -36,7 +36,11 @@ function Topbar() {
   return (
     <div className="relative w-full h-14 bg-background grid grid-cols-4 items-center gap-2 px-2 py-2">
       <div className="col-span-1 flex flex-row items-center justify-start">  
-        <UserButton email={ userData.email } name={ userData.name} imageUrl={ userData.imageUrl } /> 
+        {
+          userData.imageUrl ? 
+            <UserButton email={ userData.email } name={ userData.name} imageUrl={ userData.imageUrl } /> 
+          : ""
+        }
       </div>
 
       <div className="col-span-3 flex flex-row items-center justify-end gap-3">
