@@ -1,0 +1,9 @@
+fastapi
+PyJWT
+uvicorn
+python-dotenv
+supabase
+llama-index-core
+llama-index-embeddings-huggingface
+llama-index-vector-stores-qdrant
+qdrant-client
