@@ -3,18 +3,21 @@ from fastapi.responses import JSONResponse
 import jwt
 import uvicorn
 import os
+import mimetypes
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 import supabase
 from supabase import create_client, Client
-
-
+from celery import Celery
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
 from llama_index.core import StorageContext
 import qdrant_client
+from fastapi.middleware.cors import CORSMiddleware
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
+celery_client = Celery('client', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
 
 Settings.embed_model = HuggingFaceEmbedding(
     model_name="all-MiniLM-L6-v2"
@@ -23,7 +26,6 @@ Settings.embed_model = HuggingFaceEmbedding(
 load_dotenv()
 
 from utils import clone_repo, get_file_tree
-import shutil
 
 QDRANT_URL = os.environ.get("QDRANT_URL")
 QDRANT_API = os.environ.get("QDRANT_API")
@@ -38,7 +40,14 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 app = FastAPI()
 
 
-
+# CORS for frontend debugging
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # --- JWT Verification Middleware --- #
@@ -75,12 +84,14 @@ app = FastAPI()
 #     return await call_next(request)
 
 # --- Health Route --- #
+
 @app.get("/health")
 async def health(request: Request):
     return {
         "status": "ok",
         "user": request.state.user.get("email") if hasattr(request.state, "user") else None
     }
+
 async def init_project(project_id):
     """Fetches the files from the github repo and initializes the vector store, stroes it in the qdrant database.
     
@@ -129,8 +140,8 @@ async def init_project(project_id):
 @app.websocket("/ws/init")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    await websocket.send_text("Initializing project, please wait...")
     
+    await websocket.send_json({"status": False, "message": "Initializing project..."})
     # Access query parameters
     try:    
         params = websocket.query_params
@@ -140,33 +151,40 @@ async def websocket_endpoint(websocket: WebSocket):
             return
         done=await init_project(project_id)
         if not done:
-            shutil.rmtree(f"codebase/{project_id}", ignore_errors=True)
-            await websocket.send_text("Error initializing project")
+            await websocket.send_json({"status": True, "message": "Project already present"})
             await websocket.close()
             return
         else:
-            await websocket.send_text(f"Project initialized successfully.")
+            supabase.table('project').update({
+                'status': True
+            }).eq('id', project_id).execute()
+            await websocket.send_json({"status": True, "message": "Project initialized successfully"})
 
         await websocket.close()
     except Exception as e:
         print(f"Error initializing project {project_id} , {e}")
 
-
-
-
-
-@app.post("/query")
+@app.post("/v1/query")
 async def init_query(request: Request):
     #get the question from the request body
     body = await request.json()
     question = body.get("question")
     project_id = body.get("project_id")
+    
     if not question or not project_id:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"detail": "Missing question or project_id"},
         )
-    
+        
+    result = celery_client.send_task('process_task', kwargs={
+        'query': question,
+        'project_id': project_id
+    })
+
+    print("Task sent. ID:", result.id)
+
+    return { "message" : result.id }
 
 @app.get("/v1/tree")
 async def get_tree(request: Request):
@@ -180,20 +198,30 @@ async def get_tree(request: Request):
     tree = get_file_tree(base_path=base_path)
     return { "tree" : tree }
 
-    
-    
-    
-
-@app.post("/v1/query/init")
-async def init_query(request: Request):
+@app.get("/v1/file")
+async def get_file(request: Request):
     project_id = request.query_params.get("project_id")
     if not project_id:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"detail": "Missing project_id"},
         )
+    file_path = "codebase/" + project_id + "/" + request.query_params.get("file_path")
+
+    if os.path.exists(file_path):
+        # Detect if file is an image or text
+        mime_type, _ = mimetypes.guess_type(file_path)
+        
+        if mime_type and mime_type.startswith("image/"):
+            return JSONResponse(content={"content": "Preview not available"})
+        
+        # Assume it's a text file
+        with open(file_path, "r", encoding="utf-8") as f:
+            text = f.read()
+        return JSONResponse(content={"content": text})
     
-    
+    return JSONResponse(content={"error": "File not found"}, status_code=404)
+
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8081)
