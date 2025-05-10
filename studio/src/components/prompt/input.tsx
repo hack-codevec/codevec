@@ -64,7 +64,7 @@ export default function ChatInput({
         {modes.map((mode) => (
           <button
             key={mode.id}
-            type="button"
+            type="button" 
             onClick={() => setActiveMode(mode.id === "default" ? null : mode.id)}
             className={cn(
               "flex items-center text-sm px-3 py-1.5 rounded-full whitespace-nowrap border-2 border-transparent transition-all duration-200 ease-in-out",

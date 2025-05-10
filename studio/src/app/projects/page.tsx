@@ -1,14 +1,14 @@
-import Playground from "@/components/playground/playground";
+import { ProjectsPage } from "@/components/project/project-view";
 import Topbar from "@/components/topbar/Topbar";
 import React from "react";
 
-function Studio() {
+function page() {
   return (
     <div className="w-full h-screen flex flex-col">
       <Topbar />
-      <Playground />
+      <ProjectsPage />
     </div>
   );
 }
 
-export default Studio;
+export default page;
