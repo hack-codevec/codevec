@@ -1,12 +1,14 @@
+import Playground from "@/components/playground/playground";
 import Topbar from "@/components/topbar/Topbar";
 import React from "react";
 
-function Playground() {
+function Studio() {
   return (
     <div className="w-full h-screen flex flex-col">
       <Topbar />
+      <Playground />
     </div>
   );
 }
 
-export default Playground;
+export default Studio;
