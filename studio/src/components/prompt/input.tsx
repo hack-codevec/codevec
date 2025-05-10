@@ -1,125 +1,54 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef, useEffect } from "react"
-import { SendIcon, Loader2, SearchIcon, GlobeIcon, BookOpenIcon, CodeIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState, type KeyboardEvent } from "react"
+import { Send } from "lucide-react"
 
 interface ChatInputProps {
-  onSend: (message: string, mode?: string) => void
-  isLoading?: boolean
-  placeholder?: string
-  className?: string
+  onSend: (message: string) => void
+  isDisabled?: boolean
 }
 
-export default function ChatInput({
-  onSend,
-  isLoading = false,
-  placeholder = "Message ChatGPT...",
-  className,
-}: ChatInputProps) {
-  const [input, setInput] = useState("")
-  const [activeMode, setActiveMode] = useState<string | null>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const formRef = useRef<HTMLFormElement>(null)
+export default function ChatInput({ onSend, isDisabled = false }: ChatInputProps) {
+  const [message, setMessage] = useState("")
 
-  // Auto-resize textarea height
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "24px" // Reset height
-      const scrollHeight = textareaRef.current.scrollHeight
-      textareaRef.current.style.height = `${Math.min(scrollHeight, 200)}px`
-    }
-  }, [input])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (input.trim() && !isLoading) {
-      onSend(input.trim(), activeMode || undefined)
-      setInput("")
-      setActiveMode(null)
-      // Reset height after sending
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "24px"
-      }
+  const handleSend = () => {
+    if (message.trim() && !isDisabled) {
+      onSend(message)
+      setMessage("")
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      formRef.current?.requestSubmit()
+      handleSend()
     }
   }
 
-  const modes = [
-    { id: "default", label: "Default", icon: <BookOpenIcon className="h-3 w-3 mr-1" /> },
-    { id: "search", label: "Web Search", icon: <SearchIcon className="h-3 w-3 mr-1" /> }
-  ]
-
   return (
-    <div className={cn("w-full max-w-4xl mx-auto px-4", className)}>
-      <div className="flex items-center justify-center mb-2 space-x-2 overflow-x-auto py-1">
-        {modes.map((mode) => (
-          <button
-            key={mode.id}
-            type="button" 
-            onClick={() => setActiveMode(mode.id === "default" ? null : mode.id)}
-            className={cn(
-              "flex items-center text-sm px-3 py-1.5 rounded-full whitespace-nowrap border-2 border-transparent transition-all duration-200 ease-in-out",
-              activeMode === mode.id || (mode.id === "default" && activeMode === null)
-                ? "bg-gray-100 text-background"
-                : "bg-canvas/100 text-foreground hover:border-1 hover:bg-canvas/20 hover:border-accent/40",
-            )}
-          >
-            {mode.icon}
-            {mode.label}
-          </button>
-        ))}
-      </div>
-
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="relative border-none flex items-end w-full rounded-xl border bg-canvas shadow-sm transition-all duration-200"
-      >
-        <textarea
-          ref={textareaRef}
-          className="w-full resize-none bg-transparent py-4 pl-4 pr-12 text-base outline-none max-h-[200px] overflow-y-auto focus:outline-none"
-          rows={1}
-          value={input}
-          placeholder={placeholder}
-          onChange={(e) => setInput(e.target.value)}
+    <div className="flex items-center space-x-2 max-w-3xl mx-auto">
+      <div className="relative flex-1">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={isLoading}
-          style={{ scrollbarWidth: "thin" }}
+          placeholder="Ask a question..."
+          disabled={isDisabled}
+          className={`w-full border border-border rounded-md px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-accent pr-10 ${
+            isDisabled ? "bg-secondary/50 text-muted-foreground" : ""
+          }`}
         />
         <button
-          type="submit"
-          className={cn(
-            "absolute bottom-3 right-3 p-1.5 rounded-lg transition-all duration-200",
-            input.trim() && !isLoading
-              ? "bg-black text-white hover:bg-gray-800"
-              : "text-gray-400 bg-gray-100 cursor-not-allowed",
-          )}
-          disabled={!input.trim() || isLoading}
-          aria-label="Send message"
+          onClick={handleSend}
+          disabled={!message.trim() || isDisabled}
+          className={`absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-accent p-1 rounded-md ${
+            !message.trim() || isDisabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <SendIcon className="h-4 w-4" />}
+          <Send size={18} />
         </button>
-      </form>
-
-      {activeMode && (
-        <div className="text-xs text-gray-500 mt-2 text-center">
-          {activeMode === "search" && "Using Deep Research mode for comprehensive answers"}
-        </div>
-      )}
-       {!activeMode && (
-        <div className="text-xs text-gray-500 mt-2 text-center">
-          ChatGPT can make mistakes. Consider checking important information.
-        </div>
-      )}
+      </div>
     </div>
   )
 }

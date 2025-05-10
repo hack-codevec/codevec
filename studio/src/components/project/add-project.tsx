@@ -12,6 +12,7 @@ interface AddProjectModalProps {
 }
 
 export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectModalProps) {
+  const [projectName, setProjectName] = useState("")
   const [githubUrl, setGithubUrl] = useState("")
   const [isAdding, setIsAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -19,12 +20,11 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
   if (!isOpen) return null
 
   const handleAddProject = async () => {
-    if (!githubUrl) return
+    if (!githubUrl || !projectName) return
 
     setIsAdding(true)
     try {
-      const newProject = await addProject(githubUrl)
-
+      const newProject = await addProject(githubUrl, projectName)
       onProjectAdded(newProject)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add project")
@@ -43,28 +43,43 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
           </button>
         </div>
 
-        <div className="p-4">
-          <div className="mb-4">
+        <div className="p-4 space-y-4">
+          <div>
+            <label htmlFor="projectName" className="block text-sm font-medium mb-1">
+              Project Name
+            </label>
+            <input
+              id="projectName"
+              type="text"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="My Awesome Project"
+              className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+              disabled={isAdding}
+            />
+          </div>
+
+          <div>
             <label htmlFor="githubUrl" className="block text-sm font-medium mb-1">
               GitHub Repository URL
             </label>
-            <div className="flex gap-2">
-              <input
-                id="githubUrl"
-                type="text"
-                value={githubUrl}
-                onChange={(e) => setGithubUrl(e.target.value)}
-                placeholder="github.com/username/repo"
-                className="flex-1 border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
-              />
-            </div>
-            {error && (
-              <div className="mt-2 text-red-500 text-sm flex items-center gap-1">
-                <AlertCircle size={14} />
-                <span>{error}</span>
-              </div>
-            )}
+            <input
+              id="githubUrl"
+              type="text"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              placeholder="github.com/username/repo"
+              className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+              disabled={isAdding}
+            />
           </div>
+
+          {error && (
+            <div className="text-red-500 text-sm flex items-center gap-1">
+              <AlertCircle size={14} />
+              <span>{error}</span>
+            </div>
+          )}
         </div>
 
         <div className="border-t border-border p-4 flex justify-end gap-2">
@@ -77,7 +92,7 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
           </button>
           <button
             onClick={handleAddProject}
-            disabled={!githubUrl || isAdding}
+            disabled={!githubUrl || !projectName || isAdding}
             className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
           >
             {isAdding && <Loader2 className="h-4 w-4 animate-spin" />}

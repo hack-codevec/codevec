@@ -12,18 +12,21 @@ import {
 } from "@/components/ui/resizable";
 import { useTheme } from "@/providers/theme-provider";
 
-export default function FileViewer() {
+interface FileViewerProps {
+  project_id: string
+}
+
+const FileViewer = ({ project_id }: FileViewerProps) => {
   const [treeStructure, setTreeStructure] = useState<TreeNode | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<FileContent | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { theme } = useTheme();
-  const projectId = "agenticai";
 
   useEffect(() => {
     const fetchTree = async () => {
       const response = await apiClient.get(
-        `/tree?project=${projectId}`
+        `/tree?project_id=${project_id}`
       );
 
       if (response.status) {
@@ -48,7 +51,7 @@ export default function FileViewer() {
     const sortedItems = [...items].sort((a, b) => a.path.localeCompare(b.path));
 
     sortedItems.forEach((item) => {
-      const pathParts = item.path.split("\\");
+      const pathParts = item.path.split("/");
       let currentNode = root;
 
       // For files/directories at the root level
@@ -101,9 +104,9 @@ export default function FileViewer() {
 
     try {
       const response = await apiClient.get(
-        `/file?path=${encodeURIComponent(
+        `/file?file_path=${encodeURIComponent(
           path
-        )}&project=${projectId}`
+        )}&project_id=${project_id}`
       );
 
       if (response.status) {
@@ -329,3 +332,5 @@ export default function FileViewer() {
     </div>
   );
 }
+
+export default FileViewer;
