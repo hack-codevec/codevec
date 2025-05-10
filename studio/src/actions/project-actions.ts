@@ -19,27 +19,33 @@ export const getProjects = async (): Promise<Project[]> => {
   }
 };
 
-export async function addProject(githuburl: string) {
+export async function addProject(githuburl: string, projectName: string) {
   try {
     const isExist = await checkGithubRepo(githuburl);
     if (!isExist) {
       throw new Error("Git hub url doesnot exists.");
     }
     const supabase = createClient();
+    const { data: authUser, error: userError } = await supabase.auth.getUser();
+    if(authUser.user){
 
-    const { data, error } = await supabase
+      const { data, error } = await supabase
       .from("project")
       .insert({
         base_git_url: githuburl,
+        name: projectName,
+        user_id: authUser.user.id
       })
       .select()
       .single();
-
-    if (error || !data) {
-      throw new Error(error?.message || "Failed to insert project");
+      
+      if (error || !data) {
+        throw new Error(error?.message || "Failed to insert project");
+      }
+      return data;
+    }else{
+      throw new Error("User not found");
     }
-
-    return data;
   } catch (error) {
     return [];
   }
