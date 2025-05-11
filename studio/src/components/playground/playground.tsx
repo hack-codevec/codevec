@@ -251,13 +251,6 @@ const Playground = ({ project_id }: PlaygroundProps) => {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 overflow-hidden">
-                      {/* <div className="text-sm font-medium mb-2">CodeVec</div> */}
-                      {/* <div className="text-foreground leading-relaxed overflow-hidden">
-                        {formatMessageWithCodeBlocks(currentMessage)}
-                        {isStreaming && (
-                          <span className="inline-block w-3 h-4 bg-accent animate-pulse rounded-sm ml-1"></span>
-                        )}
-                      </div> */}
                       <MarkdownMessage content={currentMessage} isStreaming={isStreaming} />
                     </div>
                   </div>
