@@ -5,12 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useAuth } from "@/hooks/auth-context";
 
 interface UserButtonProps {
@@ -75,11 +74,13 @@ export function UserButton({ email, name, imageUrl }: UserButtonProps) {
           <span>Settings</span>
         </div>
         <DropdownMenuSeparator />
-        <div className="hover:bg-accent/30 flex flex-row items-center px-2 py-1 rounded-xl my-1 gap-2 cursor-pointer text-red-500 focus:text-red-500">
-          <LogOut className="mr-2 h-4 w-4" onClick={() => logout()} />
+        <div
+          className="hover:bg-accent/30 flex flex-row items-center px-2 py-1 rounded-xl my-1 gap-2 cursor-pointer text-red-500 focus:text-red-500"
+          onClick={() => logout()}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </div>
- 
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -232,7 +232,7 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
 
   return (
     <div className="h-full flex-1 overflow-hidden">
-      <div className="w-full border-b border-[#121212] p-2 flex ">
+      <div className="w-full border-b border-accent/20 p-2 flex ">
         <div className="flex items-center gap-2 px-2 bg-background rounded-xl text-xs">
           <Code2 className="w-5 text-accent/40" />
           <p>Code</p>
@@ -240,7 +240,7 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
       </div>
 
       <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={15} minSize={10} className="relative">
+        <ResizablePanel defaultSize={20} minSize={10} className="border-accent/20 relative border-r-1">
           <div className="h-full overflow-y-auto py-2">
             {treeStructure ? (
               <FileTree

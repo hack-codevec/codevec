@@ -2,10 +2,10 @@
 
 import { useState, useEffect, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 
-function page() {
+export default function HomePage() {
   const router = useRouter();
   const [playgroundExpanded, setPlaygroundExpanded] = useState(false);
   const [animationTriggered, setAnimationTriggered] = useState(false);
@@ -15,26 +15,72 @@ function page() {
     setAnimationTriggered(true);
   }, []);
 
-  const togglePlayground = () => {
-    setPlaygroundExpanded(!playgroundExpanded);
-  };
-
   const navigateToLogin = () => {
     router.push("/login");
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      togglePlayground();
-    }
-  };
+  // Feature cards data - only 4 total (2 on each side)
+  const leftFeatures = [
+    { name: "Contextful", delay: 0.3 },
+    { name: "Multilingual", delay: 0.8 },
+  ];
+
+  const rightFeatures = [
+    { name: "Intuitive", delay: 0.5 },
+    { name: "Accessible", delay: 1.0 },
+  ];
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-background to-background/80 via-black/20 text-foreground flex flex-col items-center justify-center">
+    <div className="relative h-screen w-full overflow-hidden bg-background text-foreground flex flex-col items-center justify-center">
+      {/* Floating feature cards - Left side */}
+      <div className="absolute left-0 h-full w-1/3 pointer-events-none">
+        {leftFeatures.map((feature, index) => (
+          <div
+            key={`left-${index}`}
+            className={`absolute feature-card left-[10%] border border-accent/20 bg-canvas rounded-lg w-48 h-auto flex flex-col items-center justify-center text-center transform transition-all duration-1000 hover:scale-105 hover:bg-primary/10 hover:border-primary/40 ${
+              animationTriggered ? "opacity-100" : "opacity-0"
+            }`}
+            style={{
+              top: `${25 + index * 40}%`,
+              transitionDelay: `${feature.delay}s`,
+              animation: animationTriggered
+                ? `float-left 8s ease-in-out ${index * 1.5}s infinite`
+                : "none",
+            }}
+          >
+            <h3 className="text-xl font-bold text-foreground py-3">
+              {feature.name}
+            </h3>
+          </div>
+        ))}
+      </div>
+
+      {/* Floating feature cards - Right side */}
+      <div className="absolute right-0 h-full w-1/3 pointer-events-none">
+        {rightFeatures.map((feature, index) => (
+          <div
+            key={`right-${index}`}
+            className={`absolute feature-card right-[10%] rounded-lg border border-accent/20  bg-canvas w-48 h-auto flex flex-col items-center justify-center text-center transform transition-all duration-1000 hover:scale-105 hover:bg-primary/10 hover:border-primary/40 ${
+              animationTriggered ? "opacity-100" : "opacity-0"
+            }`}
+            style={{
+              top: `${25 + index * 40}%`,
+              transitionDelay: `${feature.delay}s`,
+              animation: animationTriggered
+                ? `float-right 8s ease-in-out ${index * 1.5}s infinite`
+                : "none",
+            }}
+          >
+            <h3 className="text-xl font-bold text-foreground py-3">
+              {feature.name}
+            </h3>
+          </div>
+        ))}
+      </div>
+
       {/* Title and Subtitle */}
       <div
-        className={`text-center max-w-3xl px-4 transition-opacity duration-700 ${
+        className={`text-center max-w-3xl px-4 transition-opacity duration-700 z-10 ${
           playgroundExpanded ? "opacity-0" : "opacity-100"
         }`}
       >
@@ -50,65 +96,23 @@ function page() {
             animationTriggered ? "animate-from-bottom-delayed" : "opacity-0"
           }`}
         >
-          CodeVec is a agentic multi-language tool that summarizes code at the
-          function, module, and project levels—making it easy to understand,
+          CodeVec is an agentic multi-language tool that summarizes code at the
+          function, module, and project levels, making it easy to understand,
           document, and onboard fast. But it's more than a summarizer.
         </p>
-      </div>
 
-      {/* Playground */}
-      <div
-        className={`absolute focus-visible playground-mobile w-[80%] left-1/2 -translate-x-1/2 transition-all duration-700 ease-in-out cursor-pointer z-20 ${
-          playgroundExpanded ? "bottom-[10vh] h-[80vh]" : "bottom-0 h-[10vh]"
-        }`}
-        onClick={togglePlayground}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-        role="button"
-        aria-expanded={playgroundExpanded}
-        aria-label="Interactive code playground"
-        aria-controls="playground-content"
-      >
-        <div
-          id="playground-content"
-          className="relative w-full h-full bg-primary/80 rounded-t-3xl overflow-hidden"
+        <Button
+          onClick={navigateToLogin}
+          className={`mt-8 bg-accent/40 text-white px-6 py-3 text-lg font-medium hover:bg-accent/70 group ${
+            animationTriggered
+              ? "animate-from-bottom-delayed-more"
+              : "opacity-0"
+          }`}
         >
-          {/* Get Started Button - only visible when expanded */}
-          <div
-            className={`absolute top-4 right-4 z-10 transition-opacity duration-500 ${
-              playgroundExpanded ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateToLogin();
-              }}
-              className="bg-accent text-accent-foreground text-base font-medium p-3 hover:bg-accent/90 border-2 border-accent focus-visible"
-            >
-              Get Started
-            </Button>
-          </div>
-
-          {/* Coder workspace image */}
-          <div className="relative w-full h-full">
-            <Image
-              src="/database_img.jpeg"
-              alt="Programmer workspace with multiple monitors"
-              fill
-              className={`object-cover object-top transition-all duration-700 ${
-                playgroundExpanded ? "opacity-80" : "opacity-30"
-              }`}
-              priority
-            />
-
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 to-transparent" />
-          </div>
-        </div>
+          Get Started{" "}
+          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+        </Button>
       </div>
     </div>
   );
 }
-
-export default page;

@@ -34,9 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         const supabase = createClient();
         const { data: authUser, error } = await supabase.auth.getUser();
-        const { data: sess, error:e } = await supabase.auth.getSession();
-
-        console.log(sess)
         
         if (error) {
           throw new Error("Unauthorized access");
@@ -72,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const supabase = createClient();
       supabase.auth.signOut();
       setUser(null);
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       console.error("Logout failed", error);
     }
