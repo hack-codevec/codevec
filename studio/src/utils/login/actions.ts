@@ -12,7 +12,7 @@ export async function login(provider:Providers) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: provider,
     options:{
-        redirectTo: "http://localhost:3000/auth/callback?next=/playground"
+        redirectTo: "http://localhost:3000/auth/callback?next=/projects"
     }
   })
 
