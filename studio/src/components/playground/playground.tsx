@@ -43,39 +43,6 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   const wsBaseUrl = "wss://socket.sasewa.org/ws/stream";
   const supabase = createClient();
 
-  const formatMessageWithCodeBlocks = (message: string) => {
-    if (!message) return null;
-
-    const parts = message.split(/```([\s\S]*?)```/);
-
-    return parts.map((part, index) => {
-      if (index % 2 === 0) {
-        return (
-          <div key={index}>
-            {part.split("\n").map((line, lineIndex) => (
-              <p key={lineIndex}>{line}</p>
-            ))}
-          </div>
-        );
-      } else {
-        const firstLineBreak = part.indexOf("\n");
-        const language =
-          firstLineBreak > 0 ? part.substring(0, firstLineBreak).trim() : "";
-        const code =
-          firstLineBreak > 0 ? part.substring(firstLineBreak + 1) : part;
-
-        return (
-          <pre
-            key={index}
-            className="bg-muted p-4 rounded-md my-2 overflow-x-auto"
-          >
-            <code className="text-sm font-mono">{code}</code>
-          </pre>
-        );
-      }
-    });
-  };
-
   const fetchProjectDetails = async () => {
     try {
       const { data, error } = await supabase
@@ -92,7 +59,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
 
       if (project.status === true) {
         setProjectStatus({ isLoading: false, exists: true });
-        connectWebSocketForStream();
+        // connectWebSocketForStream();
       } else {
         setProjectStatus({ isLoading: false, exists: false });
       }
@@ -135,6 +102,8 @@ const Playground = ({ project_id }: PlaygroundProps) => {
           setIsStreaming(true);
         } else if (data.step === "complete") {
           setIsStreaming(false);
+          socket.close();
+          console.log("Socker disconnected");
         } else if (data.content) {
           setCurrentMessage((prev) => prev + data.content);
           setIsStreaming(true);
@@ -158,9 +127,41 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   };
 
   const handleQuery = async (query: string) => {
-    if (!query.trim() || !socketRef.current) return;
+    if (!query.trim()) return;
 
-    setLastUserQuery(query); // ✅ Set user message
+    // Start WebSocket connection
+    await connectWebSocketForStream();
+
+    // Wait for up to 5 seconds for the socket to become OPEN
+    const maxWaitTime = 5000;
+    const interval = 100;
+    let waited = 0;
+
+    while (
+      socketRef.current &&
+      socketRef.current.readyState !== WebSocket.OPEN &&
+      waited < maxWaitTime
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, interval));
+      waited += interval;
+    }
+
+    // If still not open, abort
+    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+      console.error("WebSocket connection failed to open within timeout.");
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+      setCurrentMessage(
+        "Failed to establish a WebSocket connection in time. Please try again."
+      );
+      setIsStreaming(false);
+      return;
+    }
+
+    console.log("WebSocket is now open.");
+
+    setLastUserQuery(query);
     setCurrentMessage("");
     setIsStreaming(true);
 
@@ -173,17 +174,6 @@ const Playground = ({ project_id }: PlaygroundProps) => {
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      if (
-        !socketRef.current ||
-        socketRef.current.readyState !== WebSocket.OPEN
-      ) {
-        console.error("WebSocket not connected for receiving streamed response");
-        setCurrentMessage(
-          "Connected to server, but streaming connection is not available."
-        );
-        setIsStreaming(false);
       }
     } catch (error) {
       console.error("Error sending query:", error);
@@ -247,11 +237,14 @@ const Playground = ({ project_id }: PlaygroundProps) => {
                   <div className="flex items-start gap-3 p-4 rounded-lg bg-canvas">
                     <Avatar className="h-8 w-8 mt-1 flex-shrink-0">
                       <AvatarFallback className="bg-canvas text-primary-foreground">
-                        <Bot size={16} className="text-foreground"/>
+                        <Bot size={16} className="text-foreground" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 overflow-hidden">
-                      <MarkdownMessage content={currentMessage} isStreaming={isStreaming} />
+                      <MarkdownMessage
+                        content={currentMessage}
+                        isStreaming={isStreaming}
+                      />
                     </div>
                   </div>
                   <div ref={messageRef} />
