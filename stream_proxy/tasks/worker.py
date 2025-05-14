@@ -9,6 +9,9 @@ from llama_index.core import VectorStoreIndex, StorageContext, Settings
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.ollama import Ollama
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Global variables initialized per worker
 llm = None
@@ -16,7 +19,6 @@ embed_model = None
 
 QDRANT_URL = os.environ.get("QDRANT_URL")
 QDRANT_API = os.environ.get("QDRANT_API")
-OLLAMA_URL = os.environ.get("OLLAMA_URL")
 
 # Redis and Qdrant can be shared
 redis_client = redis.Redis(host='localhost', port=6379, db=0)
@@ -43,7 +45,7 @@ def init_worker(**kwargs):
     global llm, embed_model
 
     # Load Ollama and HF embeddings safely per worker process
-    llm = Ollama(model="llama3.1:8b", request_timeout=60.0, base_url=OLLAMA_URL)
+    llm = Ollama(model="llama3.1:8b", request_timeout=60.0)
     embed_model = HuggingFaceEmbedding(model_name="all-MiniLM-L6-v2")
     Settings.embed_model = embed_model
 

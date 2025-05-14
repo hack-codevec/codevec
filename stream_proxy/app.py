@@ -1,10 +1,12 @@
+# proxy server
+
 import asyncio
 import json
 from typing import Optional, Dict
 import os
 import redis.asyncio as redis
 import jwt
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, status
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketState
 from dotenv import load_dotenv
