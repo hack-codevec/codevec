@@ -39,7 +39,6 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI()
 
-
 # CORS for frontend debugging
 app.add_middleware(
     CORSMiddleware,

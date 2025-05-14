@@ -35,11 +35,6 @@ def clone_repo( repo_base:str, save_dir:str):
         print(f"❌ Failed to clone repo: {e}")
         return False
 
-# local_dir = f"DIRECTORY_NAME"
-# repo_base = "USERNAME/REPO_NAME"
-# clone_repo( repo_base = repo_base, save_dir = loacal_dir )
-
-
 def get_file_tree(base_path, ignore_files=None, ignore_dirs=None):
     if ignore_files is None:
         ignore_files = [".env"]
