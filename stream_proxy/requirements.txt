@@ -6,3 +6,4 @@ llama-index-core
 llama-index-vector-stores-qdrant
 llama-index-embeddings-huggingface
 llama-index-llms-ollama
+rich
