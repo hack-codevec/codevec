@@ -40,7 +40,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   const messageRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
-  const wsBaseUrl = "wss://socket.sasewa.org/ws/stream";
+  const wsBaseUrl = "wss://socket.sasewa.org/ws/stream";  // need to change
   const supabase = createClient();
 
   const fetchProjectDetails = async () => {
@@ -166,7 +166,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
     setIsStreaming(true);
 
     try {
-      const response = await fetch("https://backend.sasewa.org/v1/query", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: query, project_id }),
@@ -288,7 +288,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
     <div className="h-full flex justify-center items-center">
       <StatusViewer
         project_id={project_id}
-        wsUrl={`wss://backend.sasewa.org/ws/init?project_id=${project_id}`}
+        wsUrl={`wss://${process.env.NEXT_PUBLIC_BACKEND_SOCKET_URI}/ws/init?project_id=${project_id}`}
       />
     </div>
   );
