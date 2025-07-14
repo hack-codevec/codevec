@@ -13,6 +13,7 @@ import { createClient } from "@/utils/supabase/client";
 import { StatusViewer } from "./project-init";
 import { useAuth } from "@/hooks/auth-context";
 import MarkdownMessage from "./markdown-message";
+import apiClient from "@/lib/api-client";
 
 interface PlaygroundProps {
   project_id: string;
@@ -166,13 +167,12 @@ const Playground = ({ project_id }: PlaygroundProps) => {
     setIsStreaming(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/query`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: query, project_id }),
+      const response = await apiClient.post(`/v1/query`, {
+        question: query,
+        project_id,
       });
 
-      if (!response.ok) {
+      if(response.status !== 200) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
