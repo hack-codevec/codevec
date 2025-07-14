@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Code, Code2, Dice1, Files, Loader2 } from "lucide-react";
+import { Code2, Loader2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { FileContent, TreeItem, TreeNode } from "./types";
 import { FileTree } from "./file-tree";

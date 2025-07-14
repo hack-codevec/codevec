@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type KeyboardEvent, useRef, useEffect, useLayoutEffect } from "react"
+import { useState, type KeyboardEvent, useRef, useLayoutEffect } from "react"
 import { Send } from "lucide-react"
 import clsx from "clsx" // Optional utility for classNames, or use a template string
 
