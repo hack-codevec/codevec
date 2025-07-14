@@ -25,13 +25,13 @@ app.add_middleware(
 )
 
 # Redis configuration with health check and retry options
-REDIS_HOST = "192.168.2.105"
-REDIS_PORT = 6379
-REDIS_DB = 0
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_HOST =  os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT =  int(os.getenv("REDIS_PORT", "6379"))
+REDIS_DB =  0
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
 
-SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
-SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER")
+SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
+SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
 
 # Store active connections and their tasks
 active_connections: Dict[str, Dict[WebSocket, asyncio.Task]] = {}
