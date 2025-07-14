@@ -2,12 +2,20 @@ import redis
 import json
 from rich.console import Console
 import sys
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
+
+project_id = input("Enter the project id: ")
 console = Console()
 
-r = redis.Redis(host='localhost', port=6379)
+r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0, password=REDIS_PASSWORD)
 ps = r.pubsub()
-ps.subscribe('stream:313b682d-f508-4378-8c8c-59e14be62882')
+ps.subscribe(f'stream:{project_id}')
 
 for msg in ps.listen():
     if msg['type'] == 'message':

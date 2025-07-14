@@ -8,20 +8,26 @@ import os
 from llama_index.core import VectorStoreIndex, StorageContext, Settings
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.prompts import RichPromptTemplate
 from llama_index.llms.ollama import Ollama
 from dotenv import load_dotenv
-
 load_dotenv()
 
 # Global variables initialized per worker
 llm = None
 embed_model = None
 
-QDRANT_URL = os.environ.get("QDRANT_URL")
-QDRANT_API = os.environ.get("QDRANT_API")
+QDRANT_URL = os.getenv("QDRANT_URL", "")
+QDRANT_API = os.getenv("QDRANT_API", "")
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+MODEL_NAME = os.getenv("MODEL_NAME", "llama3.1:8b")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 
 # Redis and Qdrant can be shared
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0,  password="satlokashramai")
 qdrant = qdrant_client.QdrantClient(
     url=QDRANT_URL,
     port=443,
@@ -30,11 +36,56 @@ qdrant = qdrant_client.QdrantClient(
     prefer_grpc=False
 )
 
+chat_text_qa_prompt_str = """
+{% chat role="system" %}
+You are also a senior developer and you know the codebase very well.
+Always answer the question, even if the context isn't helpful.
+{% endchat %}
+
+{% chat role="user" %}
+The following is some retrieved context:
+
+<context>
+{{ context_str }}
+</context>
+
+Using the context, answer the provided question:
+{{ query_str }}
+{% endchat %}
+"""
+
+text_qa_template = RichPromptTemplate(chat_text_qa_prompt_str)
+
+# Refine Prompt
+chat_refine_prompt_str = """
+{% chat role="system" %}
+Always answer the question, even if the context isn't helpful.
+{% endchat %}
+
+{% chat role="user" %}
+The following is some new retrieved context:
+
+<context>
+{{ context_msg }}
+</context>
+
+And here is an existing answer to the query:
+<existing_answer>
+{{ existing_answer }}
+</existing_answer>
+
+Using both the new retrieved context and the existing answer, either update or repeat the existing answer to this query:
+{{ query_str }}
+{% endchat %}
+"""
+
+refine_template = RichPromptTemplate(chat_refine_prompt_str)
+
 # Celery setup
 app = Celery(
     'worker',
-    broker='redis://localhost:6379/0',
-    backend='redis://localhost:6379/0'
+    broker= f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0',
+    backend= f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0'
 )
 
 @worker_process_init.connect
@@ -45,8 +96,8 @@ def init_worker(**kwargs):
     global llm, embed_model
 
     # Load Ollama and HF embeddings safely per worker process
-    llm = Ollama(model="llama3.1:8b", request_timeout=60.0)
-    embed_model = HuggingFaceEmbedding(model_name="all-MiniLM-L6-v2")
+    llm = Ollama(base_url=OLLAMA_HOST, model=MODEL_NAME, request_timeout=60.0)
+    embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
     Settings.embed_model = embed_model
 
 
@@ -74,7 +125,14 @@ def process_task(self, query: str, project_id: str):
 
         index = get_vector_index(project_id)
         query_engine = index.as_query_engine(llm=llm, similarity_top_k=5, streaming=True)
-
+        
+        query_engine.update_prompts(
+            {
+                "response_synthesizer:text_qa_template": text_qa_template,
+                "response_synthesizer:refine_template": refine_template,
+            }
+        )
+        
         response = query_engine.query(query)
 
         for chunk in response.response_gen:

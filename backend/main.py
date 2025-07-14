@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, status , WebSocket
+from fastapi import FastAPI, Request, Response, status , WebSocket
 from fastapi.responses import JSONResponse
 import jwt
 import uvicorn
@@ -6,7 +6,6 @@ import os
 import mimetypes
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
-import supabase
 from supabase import create_client, Client
 from celery import Celery
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
@@ -17,24 +16,28 @@ import qdrant_client
 from fastapi.middleware.cors import CORSMiddleware
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
-celery_client = Celery('client', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+load_dotenv()
+
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+QDRANT_URL = os.getenv("QDRANT_URL")
+QDRANT_API = os.getenv("QDRANT_API")
+SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
+
+celery_client = Celery('client', broker=f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0', backend=f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0')
 
 Settings.embed_model = HuggingFaceEmbedding(
-    model_name="all-MiniLM-L6-v2"
+    model_name=EMBEDDING_MODEL
 )
-
-load_dotenv()
 
 from utils import clone_repo, get_file_tree
 
-QDRANT_URL = os.environ.get("QDRANT_URL")
-QDRANT_API = os.environ.get("QDRANT_API")
 
-SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
-SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER")
-
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI()
@@ -42,45 +45,49 @@ app = FastAPI()
 # CORS for frontend debugging
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://codevec.vercel.app", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 
 # --- JWT Verification Middleware --- #
-# @app.middleware("http")
-# async def verify_token_middleware(request: Request, call_next):
-#     # Allow public routes (optional)
-#     if request.url.path in ["/", "/public"]:
-#         return await call_next(request)
+@app.middleware("http")
+async def verify_token_middleware(request: Request, call_next):
+    # Bypass preflight CORS requests
+    if request.method == "OPTIONS":
+        return await call_next(request)
 
-#     token = request.headers.get("Authorization")
-#     if not token or not token.startswith("Bearer "):
-#         return JSONResponse(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             content={"detail": "Missing or invalid Authorization header"},
-#         )
+    # Allow public routes (optional)
+    if request.url.path in ["/", "/public"]:
+        return await call_next(request)
 
-#     token = token.replace("Bearer ", "")
-#     try:
-#         payload = jwt.decode(
-#             token,
-#             SUPABASE_JWT_SECRET,
-#             algorithms=["HS256"],
-#             options={"verify_aud": False},
-#             issuer=SUPABASE_JWT_ISSUER
-#         )
-#         request.state.user = payload  # store decoded token if needed
-#     except jwt.PyJWTError as e:
-#         print(f"JWT Error: {e}")
-#         return JSONResponse(
-#             status_code=status.HTTP_403_FORBIDDEN,
-#             content={"detail": f"Token verification failed"},
-#         )
+    token = request.headers.get("Authorization")
+    
+    if not token or not token.startswith("Bearer "):
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": "Missing or invalid Authorization header"},
+        )
 
-#     return await call_next(request)
+    token = token.replace("Bearer ", "")
+
+    try:
+        payload = jwt.decode(
+            token,
+            SUPABASE_JWT_SECRET,
+            algorithms=["HS256"],
+            options={"verify_aud": False}
+        )
+        request.state.user = payload
+    except jwt.PyJWTError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"detail": f"Token verification failed"},
+        )
+
+    return await call_next(request)
 
 # --- Health Route --- #
 
@@ -113,7 +120,6 @@ async def init_project(project_id):
         exclude=[".git", ".vscode"]  # <-- ignore .git folder
         )
         
-
         client = qdrant_client.QdrantClient(
         url = QDRANT_URL,
         port=443,
@@ -122,7 +128,6 @@ async def init_project(project_id):
         prefer_grpc=False
         )
         
-
         vector_store = QdrantVectorStore(client=client, collection_name=project_id)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         

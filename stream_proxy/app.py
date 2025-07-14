@@ -25,13 +25,13 @@ app.add_middleware(
 )
 
 # Redis configuration with health check and retry options
-REDIS_HOST = "localhost"
+REDIS_HOST = "192.168.2.105"
 REDIS_PORT = 6379
 REDIS_DB = 0
-REDIS_PASSWORD = None 
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
-SUPABASE_JWT_SECRET = os.environ.get("SUPABASE_JWT_SECRET")
-SUPABASE_JWT_ISSUER = os.environ.get("SUPABASE_JWT_ISSUER")
+SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
+SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER")
 
 # Store active connections and their tasks
 active_connections: Dict[str, Dict[WebSocket, asyncio.Task]] = {}
@@ -77,7 +77,7 @@ async def get_token(websocket: WebSocket) -> Optional[Dict]:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return None
 
-@app.websocket("/ws/{channel}")
+@app.websocket("/socket/ws/{channel}")
 async def websocket_endpoint(websocket: WebSocket, channel: str):
 
     token_data = await get_token(websocket)

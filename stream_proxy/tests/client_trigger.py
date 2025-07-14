@@ -1,11 +1,20 @@
-# from your client.py
 from celery import Celery
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-app = Celery('client', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost") 
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
+
+app = Celery('client', broker=f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0', backend=f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0')
+
+query = input("Enter the query: ")
+project_id = input("Enter the project id: ")
 
 result = app.send_task('process_task', kwargs={
-    'query': 'can you fix the form in the ChatInput component and explain it in depth i am a new learner?',
-    'project_id': '313b682d-f508-4378-8c8c-59e14be62882'
+    'query': query,
+    'project_id': project_id
 })
 
 print("Task sent. ID:", result.id)
