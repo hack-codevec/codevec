@@ -40,7 +40,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   const messageRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
-  const wsBaseUrl = "wss://socket.sasewa.org/ws/stream";  // need to change
+  const wsBaseUrl = `wss://${process.env.NEXT_PUBLIC_BACKEND_SOCKET_URI}/${process.env.NEXT_PUBLIC_SOCKET_PATH}/ws/stream`;  // need to change
   const supabase = createClient();
 
   const fetchProjectDetails = async () => {
