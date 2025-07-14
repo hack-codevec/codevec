@@ -26,7 +26,7 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
   useEffect(() => {
     const fetchTree = async () => {
       const response = await apiClient.get(
-        `/tree?project_id=${project_id}`
+        `/v1/tree?project_id=${project_id}`
       );
 
       if (response.status) {
@@ -104,7 +104,7 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
 
     try {
       const response = await apiClient.get(
-        `/file?file_path=${encodeURIComponent(
+        `/v1/file?file_path=${encodeURIComponent(
           path
         )}&project_id=${project_id}`
       );
