@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, type KeyboardEvent } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
-  const [playgroundExpanded, setPlaygroundExpanded] = useState(false);
+  const [playgroundExpanded, _setPlaygroundExpanded] = useState(false);
   const [animationTriggered, setAnimationTriggered] = useState(false);
 
   useEffect(() => {
@@ -96,9 +96,9 @@ export default function HomePage() {
             animationTriggered ? "animate-from-bottom-delayed" : "opacity-0"
           }`}
         >
-          CodeVec is an agentic multi-language tool that summarizes code at the
+          { `CodeVec is an agentic multi-language tool that summarizes code at the
           function, module, and project levels, making it easy to understand,
-          document, and onboard fast. But it's more than a summarizer.
+          document, and onboard fast. But it's more than a summarizer.`}
         </p>
 
         <Button

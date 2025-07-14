@@ -6,14 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import CodeDisplay from "@/components/auth/quotes";
 import { Notification } from "@/components/notification";
-import { useRouter } from "next/navigation";
 import { login } from "@/utils/login/actions";
 import { Providers } from "@/types/login";
 
 export default function AuthPage() {
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingGithub, setLoadingGithub] = useState(false);
-  const router = useRouter();
 
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";

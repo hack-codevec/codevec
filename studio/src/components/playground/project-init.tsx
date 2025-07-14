@@ -2,21 +2,26 @@
 
 import { useState, useRef, useCallback } from "react"
 import { Loader2, WifiOff, Wifi, AlertCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 interface StatusViewerProps {
   project_id: string
   wsUrl: string
 }
 
+type WSMessage = {
+  message?: unknown
+  status?: boolean | string
+} | {
+  raw: string
+}
+
 export function StatusViewer({ project_id, wsUrl }: StatusViewerProps) {
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected" | "disconnected">("idle")
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState<WSMessage[]>([])
   const [error, setError] = useState<string | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [isCompleted, setIsCompleted] = useState(false)
-  const router = useRouter()
 
   const navigateToProject = useCallback(() => {
     window.location.href = `/projects/${project_id}`

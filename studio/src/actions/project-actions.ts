@@ -27,6 +27,11 @@ export async function addProject(githuburl: string, projectName: string) {
     }
     const supabase = createClient();
     const { data: authUser, error: userError } = await supabase.auth.getUser();
+
+    if(userError){
+      throw new Error("User not found");
+    }
+
     if(authUser.user){
 
       const { data, error } = await supabase
@@ -46,7 +51,7 @@ export async function addProject(githuburl: string, projectName: string) {
     }else{
       throw new Error("User not found");
     }
-  } catch (error) {
+  } catch (_error) {
     return [];
   }
 }
