@@ -1,12 +1,12 @@
-// apiClient.js
 import axios from "axios";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 const apiClient = axios.create({
-  baseURL: "https://backend.sasewa.org/v1", // Replace with your actual base URL
-  timeout: 10000, // Optional timeout
+  baseURL: baseUrl,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
-
   },
 });
 
