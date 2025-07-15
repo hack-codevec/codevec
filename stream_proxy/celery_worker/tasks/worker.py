@@ -13,7 +13,6 @@ from llama_index.llms.ollama import Ollama
 from dotenv import load_dotenv
 load_dotenv()
 
-# Global variables initialized per worker
 llm = None
 embed_model = None
 

@@ -1,0 +1,7 @@
+redis
+starlette
+fastapi
+uvicorn[standard]
+PyJWT
+python-dotenv
+websockets

@@ -1,5 +1,3 @@
-# proxy server
-
 import asyncio
 import json
 from typing import Optional, Dict
@@ -15,7 +13,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# CORS for frontend debugging
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,7 +21,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Redis configuration with health check and retry options
 REDIS_HOST =  os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT =  int(os.getenv("REDIS_PORT", "6379"))
 REDIS_DB =  0
@@ -33,7 +29,6 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
 SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
 
-# Store active connections and their tasks
 active_connections: Dict[str, Dict[WebSocket, asyncio.Task]] = {}
 
 async def get_redis_client():
@@ -47,10 +42,9 @@ async def get_redis_client():
         socket_keepalive=True,
         health_check_interval=30,
         retry_on_timeout=True,
-        decode_responses=True  # Auto-decode to strings
+        decode_responses=True
     )
     
-    # Test connection
     try:
         await client.ping()
         return client
@@ -138,7 +132,6 @@ async def websocket_endpoint(websocket: WebSocket, channel: str):
         while websocket.client_state == WebSocketState.CONNECTED:
             try:
                 data = await asyncio.wait_for(websocket.receive_text(), timeout=5.0)
-                print(f"Received from client: {data}")
                 
                 # Publish client message if needed
                 try:
@@ -221,7 +214,6 @@ async def pubsub_listener(websocket, pubsub, channel, redis_client):
                     
                     if message_type == "message":
                         data = message.get("data")
-                        print(f"Received from Redis channel {channel}: {data}")
                         
                         # Forward message to WebSocket
                         try:

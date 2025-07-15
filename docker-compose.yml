@@ -1,0 +1,58 @@
+services:
+
+  streamer:
+    image: codevec-streamer:latest
+    container_name: codevec-streamer
+    ports:
+      - "${STREAMER_PORT}:8080"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - SUPABASE_JWT_ISSUER=${SUPABASE_JWT_ISSUER}
+    restart: unless-stopped
+
+  backend:
+    image: codevec-backend:latest
+    container_name: codevec-backend
+    ports:
+      - "${BACKEND_PORT}:8081"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API=${QDRANT_API}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - SUPABASE_JWT_ISSUER=${SUPABASE_JWT_ISSUER}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+    restart: unless-stopped
+
+  celery-worker:
+    image: codevec-celery-worker:latest
+    container_name: codevec-celery-worker
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API=${QDRANT_API}
+      - OLLAMA_HOST=${OLLAMA_HOST}
+      - MODEL_NAME=${MODEL_NAME}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+    restart: unless-stopped
