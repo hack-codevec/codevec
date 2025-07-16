@@ -1,3 +1,4 @@
+import apiClient from "@/lib/api-client";
 import { Project } from "@/types/project";
 import { createClient } from "@/utils/supabase/client";
 
@@ -19,40 +20,27 @@ export const getProjects = async (): Promise<Project[]> => {
   }
 };
 
-export async function addProject(githuburl: string, projectName: string) {
+export async function addProject(gitHubUrl: string, projectName: string) : Promise<{ project?: Project; error?: Error }> {
   try {
-    const isExist = await checkGithubRepo(githuburl);
+    const isExist = await checkGithubRepo(gitHubUrl);
     if (!isExist) {
       throw new Error("Git hub url doesnot exists.");
     }
-    const supabase = createClient();
-    const { data: authUser, error: userError } = await supabase.auth.getUser();
 
-    if(userError){
-      throw new Error("User not found");
+    const response = await apiClient.post("/v1/new/project", { gitHubUrl, projectName })
+
+    if(response.status == 200){
+      const project = response.data.project[0] as Project;
+      return {project};
     }
-
-    if(authUser.user){
-
-      const { data, error } = await supabase
-      .from("project")
-      .insert({
-        base_git_url: githuburl,
-        name: projectName,
-        user_id: authUser.user.id
-      })
-      .select()
-      .single();
-      
-      if (error || !data) {
-        throw new Error(error?.message || "Failed to insert project");
-      }
-      return data;
-    }else{
-      throw new Error("User not found");
+    else{
+      throw Error("Error encountered while creating the project.")
     }
   } catch (_error) {
-    return [];
+    if(_error instanceof Error){
+      return { error: _error};
+    }
+    return { error: Error("Unknown error occured") };
   }
 }
 

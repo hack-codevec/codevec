@@ -24,8 +24,15 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
 
     setIsAdding(true)
     try {
-      const newProject = await addProject(githubUrl, projectName)
-      onProjectAdded(newProject)
+      const { project , error } = await addProject(githubUrl, projectName);
+
+      if(error){
+        throw new Error(error.message);
+      }
+
+      if(project){
+        onProjectAdded(project);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add project")
     } finally {
