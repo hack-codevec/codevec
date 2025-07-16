@@ -4,6 +4,7 @@ import { useState } from "react"
 import { X, Loader2, AlertCircle } from "lucide-react"
 import { addProject } from "@/actions/project-actions"
 import type { Project } from "@/types/project"
+import { Axios, AxiosError } from "axios"
 
 interface AddProjectModalProps {
   isOpen: boolean
@@ -24,13 +25,34 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
 
     setIsAdding(true)
     try {
-      const newProject = await addProject(githubUrl, projectName)
-      onProjectAdded(newProject)
+      const { project , error } = await addProject(githubUrl, projectName);
+
+      if(error){
+        throw error;
+      }
+
+      if(project){
+        onProjectAdded(project);
+        setProjectName("");
+        setGithubUrl("");
+        setError("");
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add project")
+      if(err instanceof AxiosError){
+        setError(err.response?.data.message)
+      }else if(err instanceof Error){
+        setError(err.message);
+      }
+      else{
+        setError("Failed to add project")
+      }
     } finally {
       setIsAdding(false)
     }
+  }
+  const handleClose = () => {
+    setError("");
+    onClose();
   }
 
   return (
@@ -38,7 +60,7 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
       <div className="bg-background rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden">
         <div className="flex justify-between items-center p-4 border-b border-border">
           <h2 className="text-xl font-semibold">Add New Project</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground rounded-full p-1">
+          <button onClick={handleClose} className="text-muted-foreground hover:text-foreground rounded-full p-1">
             <X size={20} />
           </button>
         </div>
@@ -68,7 +90,7 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
               type="text"
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
-              placeholder="github.com/username/repo"
+              placeholder="username/repo"
               className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
               disabled={isAdding}
             />

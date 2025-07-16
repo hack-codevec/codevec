@@ -1,5 +1,7 @@
+import apiClient from "@/lib/api-client";
 import { Project } from "@/types/project";
 import { createClient } from "@/utils/supabase/client";
+import { AxiosError } from "axios";
 
 export const getProjects = async (): Promise<Project[]> => {
   try {
@@ -10,8 +12,6 @@ export const getProjects = async (): Promise<Project[]> => {
       throw new Error("Failed to load projects");
     }
 
-    console.log(data);
-
     return data as Project[];
   } catch (error) {
     console.error(error);
@@ -19,40 +19,28 @@ export const getProjects = async (): Promise<Project[]> => {
   }
 };
 
-export async function addProject(githuburl: string, projectName: string) {
+export async function addProject(gitHubUrl: string, projectName: string) : Promise<{ project?: Project; error?: AxiosError | Error }> {
   try {
-    const isExist = await checkGithubRepo(githuburl);
+    const isExist = await checkGithubRepo(gitHubUrl);
     if (!isExist) {
-      throw new Error("Git hub url doesnot exists.");
-    }
-    const supabase = createClient();
-    const { data: authUser, error: userError } = await supabase.auth.getUser();
-
-    if(userError){
-      throw new Error("User not found");
+      throw new Error("Git hub url doesnot exists. Make sure to use this format username/project");
     }
 
-    if(authUser.user){
+    const response = await apiClient.post("/v1/new/project", { gitHubUrl, projectName })
 
-      const { data, error } = await supabase
-      .from("project")
-      .insert({
-        base_git_url: githuburl,
-        name: projectName,
-        user_id: authUser.user.id
-      })
-      .select()
-      .single();
-      
-      if (error || !data) {
-        throw new Error(error?.message || "Failed to insert project");
-      }
-      return data;
-    }else{
-      throw new Error("User not found");
+    if(response.status == 200){
+      const project = response.data.project[0] as Project;
+      return {project};
     }
+
+    return {};
   } catch (_error) {
-    return [];
+    if(_error instanceof AxiosError){
+      return { error: _error as AxiosError};
+    }else if(_error instanceof Error){
+      return { error: _error as Error};
+    }
+    return {} 
   }
 }
 

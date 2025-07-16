@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Response, status , WebSocket
 from fastapi.responses import JSONResponse
 import jwt
+from starlette.status import HTTP_429_TOO_MANY_REQUESTS
 import uvicorn
 import os
 import mimetypes
@@ -226,15 +227,47 @@ async def get_file(request: Request):
     
     return JSONResponse(content={"error": "File not found"}, status_code=404)
 
-@app.get("/v1/new/project")
-async def health(request: Request):
+@app.post("/v1/new/project")
+async def newProject(request: Request):
+    
+    reqData = await request.json()
+
     user = request.state.user
+    user_id = user.get("sub")
 
-    print(user)
+    if(not user_id):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": "Missing user id"},
+        )
 
-    return {
-        "status": "ok",
-    }
+    projectName = reqData.get("projectName")
+    gitHubUrl = reqData.get("gitHubUrl")
+
+    if(not projectName or not gitHubUrl):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": "Missing project name or githuburl"},
+        )
+
+    response = supabase.table("project").select("*").eq("user_id", user_id).execute();
+
+    data = response.data
+
+    if(len(data)<2):
+        # create the project
+        newProject = supabase.table("project").insert({"user_id" : user_id, "name" : projectName, "base_git_url" : gitHubUrl}).execute()
+        if(newProject.data):
+            return JSONResponse(
+                status_code= status.HTTP_200_OK,
+                content= {"message": "Project created", "project" : newProject.data }
+            )
+    else:
+        return JSONResponse(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        content={"message": "You have already created 2 projects. Drop some to create new ones"}
+        )
+
 
 if __name__ == "__main__":
 
