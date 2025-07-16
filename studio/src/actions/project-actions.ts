@@ -1,6 +1,7 @@
 import apiClient from "@/lib/api-client";
 import { Project } from "@/types/project";
 import { createClient } from "@/utils/supabase/client";
+import { AxiosError } from "axios";
 
 export const getProjects = async (): Promise<Project[]> => {
   try {
@@ -11,8 +12,6 @@ export const getProjects = async (): Promise<Project[]> => {
       throw new Error("Failed to load projects");
     }
 
-    console.log(data);
-
     return data as Project[];
   } catch (error) {
     console.error(error);
@@ -20,11 +19,11 @@ export const getProjects = async (): Promise<Project[]> => {
   }
 };
 
-export async function addProject(gitHubUrl: string, projectName: string) : Promise<{ project?: Project; error?: Error }> {
+export async function addProject(gitHubUrl: string, projectName: string) : Promise<{ project?: Project; error?: AxiosError | Error }> {
   try {
     const isExist = await checkGithubRepo(gitHubUrl);
     if (!isExist) {
-      throw new Error("Git hub url doesnot exists.");
+      throw new Error("Git hub url doesnot exists. Make sure to use this format username/project");
     }
 
     const response = await apiClient.post("/v1/new/project", { gitHubUrl, projectName })
@@ -33,14 +32,15 @@ export async function addProject(gitHubUrl: string, projectName: string) : Promi
       const project = response.data.project[0] as Project;
       return {project};
     }
-    else{
-      throw Error("Error encountered while creating the project.")
-    }
+
+    return {};
   } catch (_error) {
-    if(_error instanceof Error){
-      return { error: _error};
+    if(_error instanceof AxiosError){
+      return { error: _error as AxiosError};
+    }else if(_error instanceof Error){
+      return { error: _error as Error};
     }
-    return { error: Error("Unknown error occured") };
+    return {} 
   }
 }
 
