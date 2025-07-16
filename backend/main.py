@@ -240,8 +240,8 @@ if __name__ == "__main__":
 
     env = os.getenv("ENVIRONMENT")
     if env == "production":
-        port = os.getenv("PRODUCTION_PORT")
+        port = int(os.getenv("PRODUCTION_PORT", "8081"))
     else:
-        port = os.getenv("DEVELOPMENT_PORT")
+        port = int(os.getenv("DEVELOPMENT_PORT", "8082"))
 
     uvicorn.run(app, host="0.0.0.0", port=port)
