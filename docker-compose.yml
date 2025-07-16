@@ -29,6 +29,8 @@ services:
       - SUPABASE_KEY=${SUPABASE_KEY}
       - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
       - SUPABASE_JWT_ISSUER=${SUPABASE_JWT_ISSUER}
+    volumes:
+      - /data/codebase:/app/codebase
     deploy:
       resources:
         reservations:

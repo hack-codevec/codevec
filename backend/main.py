@@ -226,6 +226,22 @@ async def get_file(request: Request):
     
     return JSONResponse(content={"error": "File not found"}, status_code=404)
 
+@app.get("/v1/new/project")
+async def health(request: Request):
+    user = request.state.user
+
+    print(user)
+
+    return {
+        "status": "ok",
+    }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8081)
+
+    env = os.getenv("ENVIRONMENT")
+    if env == "production":
+        port = os.getenv("PRODUCTION_PORT")
+    else:
+        port = os.getenv("DEVELOPMENT_PORT")
+
+    uvicorn.run(app, host="0.0.0.0", port=port)
