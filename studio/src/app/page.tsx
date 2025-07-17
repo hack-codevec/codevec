@@ -138,9 +138,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden select-none">
       <ParticleSystem />
-
-   
- 
       {/* Cursor Glow Effect */}
       <div
         className="fixed w-96 h-96 pointer-events-none z-0 opacity-20"
@@ -356,7 +353,7 @@ export default function HomePage() {
                   </div>
 
                   <p className="text-muted-foreground">
-                    Simply paste any public GitHub repository URL and we'll analyze it for you
+                   {` Simply paste any public GitHub repository URL and we'll analyze it for you `}
                   </p>
                 </div>
               </Card>
