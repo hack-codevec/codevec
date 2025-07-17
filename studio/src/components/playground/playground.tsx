@@ -41,7 +41,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   const messageRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
-  const wsBaseUrl = `wss://${process.env.NEXT_PUBLIC_BACKEND_SOCKET_URI}/${process.env.NEXT_PUBLIC_SOCKET_PATH}/ws/stream`;  // need to change
+  const wsBaseUrl = `${process.env.NEXT_PUBLIC_SOCKET_PROTOCOL}://${process.env.NEXT_PUBLIC_BACKEND_SOCKET_URI}/${process.env.NEXT_PUBLIC_SOCKET_PATH}/ws/stream`;  // need to change
   const supabase = createClient();
 
   const fetchProjectDetails = async () => {
@@ -288,7 +288,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
     <div className="h-full flex justify-center items-center">
       <StatusViewer
         project_id={project_id}
-        wsUrl={`wss://${process.env.NEXT_PUBLIC_BACKEND_SOCKET_URI}/ws/init?project_id=${project_id}`}
+        wsUrl={`${process.env.NEXT_PUBLIC_SOCKET_PROTOCOL}://${process.env.NEXT_PUBLIC_BACKEND_SOCKET_URI}/ws/init?project_id=${project_id}`}
       />
     </div>
   );
