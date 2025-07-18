@@ -4,7 +4,7 @@ import { useState } from "react"
 import { X, Loader2, AlertCircle } from "lucide-react"
 import { addProject } from "@/actions/project-actions"
 import type { Project } from "@/types/project"
-import { Axios, AxiosError } from "axios"
+import { AxiosError } from "axios"
 
 interface AddProjectModalProps {
   isOpen: boolean
