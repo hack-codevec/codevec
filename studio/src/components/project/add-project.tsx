@@ -1,10 +1,14 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { X, Loader2, AlertCircle } from "lucide-react"
+import { X, Loader2, AlertCircle, Github, FolderPlus } from "lucide-react"
 import { addProject } from "@/actions/project-actions"
 import type { Project } from "@/types/project"
 import { AxiosError } from "axios"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 interface AddProjectModalProps {
   isOpen: boolean
@@ -24,50 +28,76 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
     if (!githubUrl || !projectName) return
 
     setIsAdding(true)
+    setError(null)
+
     try {
-      const { project , error } = await addProject(githubUrl, projectName);
-
-      if(error){
-        throw error;
+      const { project, error } = await addProject(githubUrl, projectName)
+      if (error) {
+        throw error
       }
-
-      if(project){
-        onProjectAdded(project);
-        setProjectName("");
-        setGithubUrl("");
-        setError("");
+      if (project) {
+        onProjectAdded(project)
+        setProjectName("")
+        setGithubUrl("")
+        setError(null)
       }
     } catch (err) {
-      if(err instanceof AxiosError){
-        setError(err.response?.data.message)
-      }else if(err instanceof Error){
-        setError(err.message);
-      }
-      else{
+      if (err instanceof AxiosError) {
+        setError(err.response?.data.message || "Failed to add project")
+      } else if (err instanceof Error) {
+        setError(err.message)
+      } else {
         setError("Failed to add project")
       }
     } finally {
       setIsAdding(false)
     }
   }
+
   const handleClose = () => {
-    setError("");
-    onClose();
+    if (!isAdding) {
+      setError(null)
+      setProjectName("")
+      setGithubUrl("")
+      onClose()
+    }
+  }
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose()
+    }
   }
 
   return (
-    <div className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-background rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden">
-        <div className="flex justify-between items-center p-4 border-b border-border">
-          <h2 className="text-xl font-semibold">Add New Project</h2>
-          <button onClick={handleClose} className="text-muted-foreground hover:text-foreground rounded-full p-1">
-            <X size={20} />
-          </button>
+    <div
+      className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={handleBackdropClick}
+    >
+      <Card className="glass-morphism border-border/20 p-0 shadow-2xl w-full max-w-md overflow-hidden animate-scale-in">
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 border-b border-border/20">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+              <FolderPlus className="w-4 h-4 text-accent" />
+            </div>
+            <h2 className="text-xl font-semibold text-card-foreground">Add New Project</h2>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClose}
+            disabled={isAdding}
+            className="h-8 w-8 p-0 hover:bg-muted/50"
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
-        <div className="p-4 space-y-4">
-          <div>
-            <label htmlFor="projectName" className="block text-sm font-medium mb-1">
+        {/* Form */}
+        <div className="p-6 space-y-5">
+          <div className="space-y-2">
+            <label htmlFor="projectName" className="block text-sm font-medium text-card-foreground">
               Project Name
             </label>
             <input
@@ -76,52 +106,72 @@ export function AddProjectModal({ isOpen, onClose, onProjectAdded }: AddProjectM
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="My Awesome Project"
-              className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+              className="w-full bg-card border border-border/30 rounded-lg px-4 py-3 text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isAdding}
             />
           </div>
 
-          <div>
-            <label htmlFor="githubUrl" className="block text-sm font-medium mb-1">
-              GitHub Repository URL
+          <div className="space-y-2">
+            <label htmlFor="githubUrl" className="block text-sm font-medium text-card-foreground">
+              GitHub Repository
             </label>
-            <input
-              id="githubUrl"
-              type="text"
-              value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
-              placeholder="username/repo"
-              className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
-              disabled={isAdding}
-            />
+            <div className="relative">
+              <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                id="githubUrl"
+                type="text"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="username/repository"
+                className="w-full bg-card border border-border/30 rounded-lg pl-10 pr-4 py-3 text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isAdding}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Enter the repository in the format: username/repository-name
+            </p>
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm flex items-center gap-1">
-              <AlertCircle size={14} />
-              <span>{error}</span>
+            <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3 animate-slide-in-left">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <span className="text-sm text-red-600">{error}</span>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="border-t border-border p-4 flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-border rounded-md hover:bg-secondary/50 transition-colors"
+        {/* Footer */}
+        <div className="border-t border-border/20 p-6 flex justify-end gap-3 bg-card/30">
+          <Button
+            variant="outline"
+            onClick={handleClose}
             disabled={isAdding}
+            className="hover:bg-muted/50 bg-transparent"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleAddProject}
-            disabled={!githubUrl || !projectName || isAdding}
-            className="bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+            disabled={!githubUrl.trim() || !projectName.trim() || isAdding}
+            className="bg-accent text-accent-foreground hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/25 transition-all duration-300 group relative overflow-hidden"
           >
-            {isAdding && <Loader2 className="h-4 w-4 animate-spin" />}
-            Add Project
-          </button>
+            <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/10 to-accent/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            {isAdding ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2 relative z-10" />
+                <span className="relative z-10">Adding...</span>
+              </>
+            ) : (
+              <>
+                <FolderPlus className="w-4 h-4 mr-2 relative z-10" />
+                <span className="relative z-10">Add Project</span>
+              </>
+            )}
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
