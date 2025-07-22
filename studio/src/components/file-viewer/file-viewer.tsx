@@ -207,6 +207,10 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
         "editorSuggestWidget.background": "#1a1a1a",
         "editorSuggestWidget.border": "#2a2a2a",
         "editorSuggestWidget.selectedBackground": "#1e1e1e",
+        focusBorder: "#00000000",
+        "editor.focusedTabBorder": "#00000000",
+        "editorGroup.border": "#00000000",
+        "editorGroupHeader.tabsBorder": "#00000000",
       },
     });
 
@@ -242,6 +246,10 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
         "editorSuggestWidget.background": "#ffffff",
         "editorSuggestWidget.border": "#e2e8f0",
         "editorSuggestWidget.selectedBackground": "#f8fafc",
+        focusBorder: "#00000000",
+        "editor.focusedTabBorder": "#00000000",
+        "editorGroup.border": "#00000000",
+        "editorGroupHeader.tabsBorder": "#00000000",
       },
     });
   };
