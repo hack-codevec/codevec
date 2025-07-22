@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useTheme } from '@/providers/theme-provider';
-import { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor } from 'lucide-react';
+import { useTheme } from "@/providers/theme-provider";
+import { useState, useEffect } from "react";
+import { Moon, Sun, Monitor } from "lucide-react";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -15,13 +15,17 @@ export function ThemeToggle() {
   if (!mounted) return null;
 
   return (
-    <div className="flex items-center justify-center shadow-cyan-100 p-1 border-1 border-accent/10 rounded-full bg-secondary backdrop-blur-sm space-x-6">
+    <div
+      className="
+    glass-morphism border-border/20 hover:border-accent/30 transition-all duration-300 group hover:shadow-lg hover:shadow-black/5 cursor-pointer
+    flex items-center justify-center shadow-cyan-100 p-1 border-1 rounded-full bg-secondary backdrop-blur-sm space-x-6"
+    >
       <button
-        onClick={() => setTheme('light')}
+        onClick={() => setTheme("light")}
         className={`p-2 rounded-full transition-all ${
-          theme === 'light'
-            ? 'ring-1 ring-accent bg-secondary/90 text-accent'
-            : 'text-muted-foreground hover:text-foreground'
+          theme === "light"
+            ? "bg-transparent text-accent"
+            : "text-muted-foreground hover:text-foreground"
         }`}
         aria-label="Light theme"
       >
@@ -29,11 +33,11 @@ export function ThemeToggle() {
       </button>
 
       <button
-        onClick={() => setTheme('system')}
+        onClick={() => setTheme("system")}
         className={`p-2 rounded-full transition-all ${
-          theme === 'system'
-            ? 'ring-1 ring-accent bg-secondary/90 text-accent'
-            : 'text-muted-foreground hover:text-foreground'
+          theme === "system"
+            ? "bg-transparent text-accent"
+            : "text-muted-foreground hover:text-foreground"
         }`}
         aria-label="System theme"
       >
@@ -41,11 +45,11 @@ export function ThemeToggle() {
       </button>
 
       <button
-        onClick={() => setTheme('dark')}
+        onClick={() => setTheme("dark")}
         className={`p-2 rounded-full transition-all ${
-          theme === 'dark'
-            ? 'ring-1 ring-accent bg-secondary/90 text-accent'
-            : 'text-muted-foreground hover:text-foreground'
+          theme === "dark"
+            ? "bg-transparent text-accent"
+            : "text-muted-foreground hover:text-foreground"
         }`}
         aria-label="Dark theme"
       >

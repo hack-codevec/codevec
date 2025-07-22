@@ -24,7 +24,6 @@ interface Project {
   status: boolean
 }
 
-// Deploy prompt component for inactive projects
 function DeployPrompt({ onDeploy }: { onDeploy: () => void }) {
   return (
     <div className="h-full flex flex-col justify-center items-center bg-background px-6">
@@ -65,7 +64,6 @@ function DeployPrompt({ onDeploy }: { onDeploy: () => void }) {
   )
 }
 
-// Error state component
 function ProjectErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <div className="h-full flex flex-col justify-center items-center bg-background px-6">
@@ -88,7 +86,6 @@ function ProjectErrorState({ message, onRetry }: { message: string; onRetry?: ()
   )
 }
 
-// Enhanced chat message component
 function ChatMessage({
   isUser,
   content,
@@ -118,7 +115,6 @@ function ChatMessage({
 }
 
 const Playground = ({ project_id }: PlaygroundProps) => {
-  // State management
   const [projectState, setProjectState] = useState<
     "loading" | "exists" | "ready-to-deploy" | "initializing" | "not-found"
   >("loading")
@@ -138,40 +134,36 @@ const Playground = ({ project_id }: PlaygroundProps) => {
 
   const fetchProjectDetails = async () => {
     try {
-      console.log("🔍 Fetching project details for:", project_id)
+      console.log("Fetching project details for:", project_id)
 
       const { data, error } = await supabase.from("project").select("*").eq("id", project_id).single()
 
       if (error) {
-        console.error("❌ Database error:", error)
+        console.error("Database error:", error)
         setProjectState("not-found")
         return
       }
 
       if (!data) {
-        console.log("❌ No project data found")
+        console.log("No project data found")
         setProjectState("not-found")
         return
       }
 
       const project = data as Project
-      console.log("📊 Project data:", { id: project.id, status: project.status })
 
       if (project.status === true) {
-        console.log("✅ Project is active - showing playground")
         setProjectState("exists")
       } else {
-        console.log("⚠️ Project is inactive - showing deploy prompt")
         setProjectState("ready-to-deploy")
       }
     } catch (error) {
-      console.error("💥 Error fetching project:", error)
+      console.error("Error fetching project:", error)
       setProjectState("not-found")
     }
   }
 
   const handleDeploy = () => {
-    console.log("🚀 User clicked deploy - starting initialization")
     setProjectState("initializing")
   }
 
@@ -275,57 +267,42 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   }
 
   const handleProjectStatusUpdate = (newStatus: boolean) => {
-    console.log("🔄 Project status update received:", newStatus)
-
     if (newStatus && !initializationCompleteRef.current) {
-      console.log("🎉 Backend initialization completed - waiting for UI completion...")
+      console.log("Backend initialization completed - waiting for UI completion...")
       initializationCompleteRef.current = true
       setHasInitialized(true)
-
-      // Don't immediately switch to playground - let StatusViewer complete its animations
-      // The StatusViewer will handle the transition timing
-      return false // Prevent StatusViewer from auto-navigating
+      return false
     }
   }
 
   const handleInitializationComplete = () => {
-    console.log("🎮 StatusViewer completed - switching to playground")
     setProjectState("exists")
   }
 
-  // Initial load effect
   useEffect(() => {
-    console.log("🚀 Component mounted for project:", project_id)
-
-    // Reset initialization state when project_id changes
     initializationCompleteRef.current = false
     setHasInitialized(false)
 
     fetchProjectDetails()
 
     return () => {
-      console.log("🧹 Cleaning up component")
       if (socketRef.current) {
         socketRef.current.close()
       }
     }
   }, [project_id])
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messageRef.current) {
       messageRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [currentMessage, lastUserQuery])
 
-  // Show loading screen only during initial fetch
   if (projectState === "loading") {
-    console.log("⏳ Showing loading screen")
     return <ProjectLoadingScreen />
   }
 
   if (projectState === "not-found") {
-    console.log("❌ Showing not found state")
     return (
       <ProjectErrorState
         message="The requested project could not be found or you don't have access to it."
@@ -335,12 +312,10 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   }
 
   if (projectState === "ready-to-deploy") {
-    console.log("🚀 Showing deploy prompt")
     return <DeployPrompt onDeploy={handleDeploy} />
   }
 
   if (projectState === "initializing") {
-    console.log("🔧 Showing initialization state")
     return (
       <div className="h-full flex justify-center items-center bg-background">
         <StatusViewer
@@ -354,7 +329,6 @@ const Playground = ({ project_id }: PlaygroundProps) => {
   }
 
   // Main playground interface
-  console.log("🎮 Showing main playground interface")
   return (
     <div className="flex-1 overflow-hidden bg-background">
       <ResizablePanelGroup direction="horizontal">

@@ -1,8 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { TreeNode } from "./types";
-import { ChevronDown, ChevronRight, File, Folder } from "lucide-react";
-
+import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react';
 
 interface FileTreeProps {
   node: TreeNode;
@@ -12,7 +11,7 @@ interface FileTreeProps {
 }
 
 export function FileTree({ node, level, onFileClick, selectedFile }: FileTreeProps) {
-  const [expanded, setExpanded] = useState(level < 2);
+  const [expanded, setExpanded] = useState(false); // Changed from level < 2 to false
   const hasChildren = Object.keys(node.children).length > 0;
   const isRoot = node.name === "root";
 
@@ -87,7 +86,6 @@ export function FileTree({ node, level, onFileClick, selectedFile }: FileTreePro
           </>
         )}
       </div>
-
       {expanded && hasChildren && (
         <div>
           {Object.values(node.children)

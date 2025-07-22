@@ -44,19 +44,6 @@ function Topbar() {
       </div>
 
       <div className="col-span-3 flex flex-row items-center justify-end gap-3">
-        <div className="px-4 bg-secondary rounded-3xl">
-          {connected ? (
-            <div className="flex flex-row justify-center items-center gap-2 p-2">
-              <div className="w-2 h-2 bg-accent rounded-full"></div>
-              Connected
-            </div>
-          ) : (
-            <div className="flex flex-row justify-center items-center gap-2 p-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Disconnected
-            </div>
-          )}
-        </div>
       <ThemeToggle />
       </div>
     </div>

@@ -13,7 +13,7 @@ import {
 import { useTheme } from "@/providers/theme-provider";
 
 interface FileViewerProps {
-  project_id: string
+  project_id: string;
 }
 
 const FileViewer = ({ project_id }: FileViewerProps) => {
@@ -25,9 +25,7 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
 
   useEffect(() => {
     const fetchTree = async () => {
-      const response = await apiClient.get(
-        `/v1/tree?project_id=${project_id}`
-      );
+      const response = await apiClient.get(`/v1/tree?project_id=${project_id}`);
 
       if (response.status) {
         const processedTree = processTreeData(response.data.tree);
@@ -177,46 +175,73 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
       validate: false,
     });
 
-    // 3) Define a custom theme called “myCustomDark” (base it on vs-dark)
+    // Dark theme
     monaco.editor.defineTheme("myCustomDark", {
       base: "vs-dark",
       inherit: true,
       rules: [
-        { token: "", background: "FFFFFF" }, // editor bg
-        { token: "comment", foreground: "6A9955", fontStyle: "italic" },
-        { token: "keyword", foreground: "C586C0" },
-        { token: "identifier", foreground: "9CDCFE" },
-        { token: "string", foreground: "CE9178" },
+        { token: "", background: "111111" },
+        { token: "comment", foreground: "94a3b8", fontStyle: "italic" },
+        { token: "keyword", foreground: "60a5fa" },
+        { token: "identifier", foreground: "f1f5f9" },
+        { token: "string", foreground: "ce9178" },
+        { token: "number", foreground: "fbbf24" },
+        { token: "type", foreground: "a78bfa" },
+        { token: "function", foreground: "06b6d4" },
       ],
       colors: {
-        "editor.background": "#1F1F1F",
-        "editor.foreground": "#D4D4D4",
-        "editorCursor.foreground": "#FFFFFF",
-        "editor.lineHighlightBackground": "#2A2A2A",
-        "editorLineNumber.foreground": "#858585",
-        "editor.selectionBackground": "#264F78",
+        "editor.background": "#111111",
+        "editor.foreground": "#f1f5f9",
+        "editorCursor.foreground": "#ce9178",
+        "editor.lineHighlightBackground": "#1e1e1e",
+        "editorLineNumber.foreground": "#94a3b8",
+        "editorLineNumber.activeForeground": "#f1f5f9",
+        "editor.selectionBackground": "#60a5fa40",
+        "editor.selectionHighlightBackground": "#60a5fa20",
+        "editorIndentGuide.background": "#2a2a2a",
+        "editorIndentGuide.activeBackground": "#ce9178",
+        "editor.findMatchBackground": "#ce917840",
+        "editor.findMatchHighlightBackground": "#ce917820",
+        "editorWidget.background": "#1a1a1a",
+        "editorWidget.border": "#2a2a2a",
+        "editorSuggestWidget.background": "#1a1a1a",
+        "editorSuggestWidget.border": "#2a2a2a",
+        "editorSuggestWidget.selectedBackground": "#1e1e1e",
       },
     });
 
+    // Light theme
     monaco.editor.defineTheme("myCustomLight", {
-      base: "vs", // “vs” is the built-in light base
+      base: "vs",
       inherit: true,
       rules: [
-        { token: "", background: "DFDFDF" }, // canvas bg
-        { token: "comment", foreground: "008000", fontStyle: "italic" },
-        { token: "keyword", foreground: "0000FF" },
-        { token: "identifier", foreground: "000000" },
-        { token: "string", foreground: "A31515" },
-        // …add more token rules as desired…
+        { token: "", background: "f8fafc" },
+        { token: "comment", foreground: "64748b", fontStyle: "italic" },
+        { token: "keyword", foreground: "2563eb" },
+        { token: "identifier", foreground: "0f172a" },
+        { token: "string", foreground: "22863a" },
+        { token: "number", foreground: "f59e0b" },
+        { token: "type", foreground: "7c3aed" },
+        { token: "function", foreground: "0891b2" },
       ],
       colors: {
-        "editor.background": "#dfdfdf",
-        "editor.foreground": "#1e1e1e",
-        "editorCursor.foreground": "#000000",
-        "editor.lineHighlightBackground": "#e8e8e8",
-        "editorLineNumber.foreground": "#237893",
-        "editor.selectionBackground": "#ADD6FF",
-        // …override any other UI colors you like…
+        "editor.background": "#f8fafc",
+        "editor.foreground": "#0f172a",
+        "editorCursor.foreground": "#22863a",
+        "editor.lineHighlightBackground": "#ffffff",
+        "editorLineNumber.foreground": "#64748b",
+        "editorLineNumber.activeForeground": "#0f172a",
+        "editor.selectionBackground": "#2563eb40",
+        "editor.selectionHighlightBackground": "#2563eb20",
+        "editorIndentGuide.background": "#e2e8f0",
+        "editorIndentGuide.activeBackground": "#22863a",
+        "editor.findMatchBackground": "#22863a40",
+        "editor.findMatchHighlightBackground": "#22863a20",
+        "editorWidget.background": "#ffffff",
+        "editorWidget.border": "#e2e8f0",
+        "editorSuggestWidget.background": "#ffffff",
+        "editorSuggestWidget.border": "#e2e8f0",
+        "editorSuggestWidget.selectedBackground": "#f8fafc",
       },
     });
   };
@@ -227,6 +252,18 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
       monaco.editor.setTheme("myCustomLight");
     } else if (theme === "dark") {
       monaco.editor.setTheme("myCustomDark");
+    } else if (theme === "system") {
+      if (typeof window !== "undefined") {
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark" ||
+          (!document.documentElement.getAttribute("data-theme") &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (isDark) {
+          monaco.editor.setTheme("myCustomDark");
+        } else {
+          monaco.editor.setTheme("myCustomLight");
+        }
+      }
     }
   };
 
@@ -240,8 +277,12 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
       </div>
 
       <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={20} minSize={10} className="border-accent/20 relative border-r-1">
-          <div className="h-full overflow-y-auto py-2">
+        <ResizablePanel
+          defaultSize={20}
+          minSize={10}
+          className="border-accent/20 relative border-r-1"
+        >
+          <div className="h-full overflow-y-auto scrollbar-subtle py-2">
             {treeStructure ? (
               <FileTree
                 node={treeStructure}
@@ -331,6 +372,6 @@ const FileViewer = ({ project_id }: FileViewerProps) => {
       </ResizablePanelGroup>
     </div>
   );
-}
+};
 
 export default FileViewer;
