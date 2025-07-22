@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { useRouter } from "next/navigation"
-import ParticleSystem from "@/components/ui/particle-system"
-import InteractiveDemo from "@/components/ui/interactive-demo"
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import ParticleSystem from "@/components/ui/particle-system";
+import InteractiveDemo from "@/components/ui/interactive-demo";
+import { TypeAnimation } from "react-type-animation";
 import {
   ArrowRight,
   Github,
@@ -24,70 +25,53 @@ import {
   TrendingUp,
   Clock,
   Target,
-} from "lucide-react"
-import { ThemeToggle } from "@/components/ThemeToggle"
+} from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function HomePage() {
-  const router = useRouter()
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [visibleSections, setVisibleSections] = useState(new Set())
-  const [typedText, setTypedText] = useState("")
-  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({})
-  const heroRef = useRef<HTMLElement>(null)
-
-  const fullText = "Chat with any GitHub repository using AI"
+  const router = useRouter();
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [visibleSections, setVisibleSections] = useState(new Set());
+  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+  const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
 
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [])
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setVisibleSections((prev) => new Set([...prev, entry.target.id]))
+            setVisibleSections((prev) => new Set([...prev, entry.target.id]));
           }
-        })
+        });
       },
-      { threshold: 0.1 },
-    )
+      { threshold: 0.1 }
+    );
 
     Object.values(sectionRefs.current).forEach((ref) => {
-      if (ref) observer.observe(ref)
-    })
+      if (ref) observer.observe(ref);
+    });
 
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    let i = 0
-    const timer = setInterval(() => {
-      if (i < fullText.length) {
-        setTypedText(fullText.slice(0, i + 1))
-        i++
-      } else {
-        clearInterval(timer)
-      }
-    }, 100)
-
-    return () => clearInterval(timer)
-  }, [])
+    return () => observer.disconnect();
+  }, []);
 
   const navigateToLogin = () => {
-    router.push("/login")
-  }
+    router.push("/login");
+  };
 
   const scrollToSection = (sectionId: string) => {
     sectionRefs.current[sectionId]?.scrollIntoView({
       behavior: "smooth",
-    })
-  }
+    });
+  };
 
   const features = [
     {
@@ -126,14 +110,30 @@ export default function HomePage() {
       description: "Perfect for onboarding and knowledge sharing",
       color: "from-pink-500 to-rose-500",
     },
-  ]
+  ];
 
   const stats = [
-    { number: "10K+", label: "Repositories Analyzed", icon: <GitBranch className="h-6 w-6" /> },
-    { number: "50K+", label: "Questions Answered", icon: <MessageSquare className="h-6 w-6" /> },
-    { number: "99.9%", label: "Uptime", icon: <TrendingUp className="h-6 w-6" /> },
-    { number: "<2s", label: "Average Response", icon: <Clock className="h-6 w-6" /> },
-  ]
+    {
+      number: "10K+",
+      label: "Repositories Analyzed",
+      icon: <GitBranch className="h-6 w-6" />,
+    },
+    {
+      number: "50K+",
+      label: "Questions Answered",
+      icon: <MessageSquare className="h-6 w-6" />,
+    },
+    {
+      number: "99.9%",
+      label: "Uptime",
+      icon: <TrendingUp className="h-6 w-6" />,
+    },
+    {
+      number: "<2s",
+      label: "Average Response",
+      icon: <Clock className="h-6 w-6" />,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden select-none">
@@ -147,21 +147,21 @@ export default function HomePage() {
           background: `radial-gradient(circle, var(--accent) 0%, transparent 70%)`,
           filter: "blur(40px)",
         }}
-        />
+      />
 
       {/* Hero Section */}
       <section
         ref={(el) => {
-          sectionRefs.current["hero"] = el
-          heroRef.current = el
+          sectionRefs.current["hero"] = el;
+          heroRef.current = el;
         }}
         id="hero"
         className="relative min-h-screen flex flex-col items-center justify-center section-padding hero-gradient"
-        >
+      >
         <div className="absolute top-4 right-4 z-20">
           <ThemeToggle />
         </div>
-        
+
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse"></div>
           <div
@@ -173,7 +173,8 @@ export default function HomePage() {
         <div className="text-center max-w-6xl px-4 z-10 relative">
           <div className="mb-8">
             <span className="inline-flex items-center px-6 py-3 rounded-full glass-morphism text-accent text-sm font-medium">
-              <Sparkles className="h-4 w-4 mr-2" />🏆 Hackathon Winner • Open Source
+              <Sparkles className="h-4 w-4 mr-2" />
+              🏆 Hackathon Winner • Open Source
             </span>
           </div>
 
@@ -182,13 +183,26 @@ export default function HomePage() {
           </h1>
 
           <div className="text-2xl md:text-4xl text-muted-foreground mb-4 h-16 flex items-center justify-center">
-            <span className="typing-animation font-mono">{typedText}</span>
+            <TypeAnimation
+              sequence={[
+                "Chat with any GitHub repository using Code LLM's",
+                1000,
+              ]}
+              wrapper="span"
+              speed={60} 
+              style={{ fontSize: "inherit", display: "inline-block" }}
+              repeat={0} 
+              cursor={true}
+            />
           </div>
 
           <p className="text-xl md:text-2xl text-muted-foreground/80 leading-relaxed mb-12 max-w-4xl mx-auto">
-            Understand any codebase instantly. Generate documentation. Onboard faster.
+            Understand any codebase instantly. Generate documentation. Onboard
+            faster.
             <br />
-            <span className="text-accent font-semibold">No assumptions. Just pure code intelligence.</span>
+            <span className="text-accent font-semibold">
+              No assumptions. Just pure code intelligence.
+            </span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
@@ -206,7 +220,12 @@ export default function HomePage() {
               variant="outline"
               size="lg"
               className="px-12 py-6 text-xl font-bold rounded-full glass-morphism hover:bg-accent/10 group bg-transparent"
-              onClick={() => window.open("https://github.com/hack-codevec/codevec.git", "_blank")}
+              onClick={() =>
+                window.open(
+                  "https://github.com/hack-codevec/codevec.git",
+                  "_blank"
+                )
+              }
             >
               <Github className="mr-3 h-6 w-6" />
               View Source
@@ -224,9 +243,13 @@ export default function HomePage() {
                 }`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="text-accent mb-2 flex justify-center">{stat.icon}</div>
+                <div className="text-accent mb-2 flex justify-center">
+                  {stat.icon}
+                </div>
                 <div className="text-3xl font-bold mb-1">{stat.number}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
@@ -243,22 +266,33 @@ export default function HomePage() {
       {/* Interactive Demo Section */}
       <section
         ref={(el) => {
-          sectionRefs.current["demo"] = el
+          sectionRefs.current["demo"] = el;
         }}
         id="demo"
         className="section-padding bg-gradient-to-b from-background to-muted/20"
       >
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center mb-16 ${visibleSections.has("demo") ? "animate-scale-in" : "opacity-0"}`}>
+          <div
+            className={`text-center mb-16 ${
+              visibleSections.has("demo") ? "animate-scale-in" : "opacity-0"
+            }`}
+          >
             <h2 className="text-5xl md:text-6xl font-bold mb-6">
               See the <span className="gradient-text">Magic</span>
             </h2>
             <p className="text-2xl text-muted-foreground max-w-3xl mx-auto">
-              Watch CodeVec analyze real repositories and provide intelligent insights
+              Watch CodeVec analyze real repositories and provide intelligent
+              insights
             </p>
           </div>
 
-          <div className={`${visibleSections.has("demo") ? "animate-slide-in-left" : "opacity-0"}`}>
+          <div
+            className={`${
+              visibleSections.has("demo")
+                ? "animate-slide-in-left"
+                : "opacity-0"
+            }`}
+          >
             <InteractiveDemo />
           </div>
         </div>
@@ -267,17 +301,23 @@ export default function HomePage() {
       {/* Features Grid */}
       <section
         ref={(el) => {
-          sectionRefs.current["features"] = el
+          sectionRefs.current["features"] = el;
         }}
         id="features"
         className="section-padding"
       >
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center mb-20 ${visibleSections.has("features") ? "animate-scale-in" : "opacity-0"}`}>
+          <div
+            className={`text-center mb-20 ${
+              visibleSections.has("features") ? "animate-scale-in" : "opacity-0"
+            }`}
+          >
             <h2 className="text-5xl md:text-6xl font-bold mb-6">
               Powerful <span className="gradient-text">Features</span>
             </h2>
-            <p className="text-2xl text-muted-foreground">Everything you need to master any codebase</p>
+            <p className="text-2xl text-muted-foreground">
+              Everything you need to master any codebase
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -285,7 +325,9 @@ export default function HomePage() {
               <Card
                 key={index}
                 className={`interactive-card glass-morphism border-0 group overflow-hidden ${
-                  visibleSections.has("features") ? "animate-scale-in" : "opacity-0"
+                  visibleSections.has("features")
+                    ? "animate-scale-in"
+                    : "opacity-0"
                 }`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -300,9 +342,13 @@ export default function HomePage() {
                     {feature.icon}
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-4 group-hover:text-accent transition-colors">{feature.title}</h3>
+                  <h3 className="text-2xl font-bold mb-4 group-hover:text-accent transition-colors">
+                    {feature.title}
+                  </h3>
 
-                  <p className="text-muted-foreground text-lg leading-relaxed">{feature.description}</p>
+                  <p className="text-muted-foreground text-lg leading-relaxed">
+                    {feature.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -313,21 +359,33 @@ export default function HomePage() {
       {/* How It Works Section */}
       <section
         ref={(el) => {
-          sectionRefs.current["code"] = el
+          sectionRefs.current["code"] = el;
         }}
         id="code"
         className="section-padding bg-gradient-to-b from-muted/20 to-background"
       >
         <div className="max-w-6xl mx-auto">
-          <div className={`text-center mb-16 ${visibleSections.has("code") ? "animate-scale-in" : "opacity-0"}`}>
+          <div
+            className={`text-center mb-16 ${
+              visibleSections.has("code") ? "animate-scale-in" : "opacity-0"
+            }`}
+          >
             <h2 className="text-5xl md:text-6xl font-bold mb-6">
               Simple <span className="gradient-text">Process</span>
             </h2>
-            <p className="text-2xl text-muted-foreground">Get started in just two easy steps</p>
+            <p className="text-2xl text-muted-foreground">
+              Get started in just two easy steps
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className={`${visibleSections.has("code") ? "animate-slide-in-left" : "opacity-0"}`}>
+            <div
+              className={`${
+                visibleSections.has("code")
+                  ? "animate-slide-in-left"
+                  : "opacity-0"
+              }`}
+            >
               <Card className="glass-morphism p-8 interactive-card">
                 <div className="space-y-6">
                   <div className="flex items-center mb-6">
@@ -346,20 +404,29 @@ export default function HomePage() {
                         className="flex-1 bg-transparent border-none outline-none text-foreground placeholder-muted-foreground"
                         disabled
                       />
-                      <Button size="sm" className="bg-accent hover:bg-accent/90">
+                      <Button
+                        size="sm"
+                        className="bg-accent hover:bg-accent/90"
+                      >
                         Analyze
                       </Button>
                     </div>
                   </div>
 
                   <p className="text-muted-foreground">
-                   {` Simply paste any public GitHub repository URL and we'll analyze it for you `}
+                    {` Simply paste any public GitHub repository URL and we'll analyze it for you `}
                   </p>
                 </div>
               </Card>
             </div>
 
-            <div className={`${visibleSections.has("code") ? "animate-slide-in-right" : "opacity-0"}`}>
+            <div
+              className={`${
+                visibleSections.has("code")
+                  ? "animate-slide-in-right"
+                  : "opacity-0"
+              }`}
+            >
               <Card className="glass-morphism p-8 interactive-card">
                 <div className="space-y-6">
                   <div className="flex items-center mb-6">
@@ -375,7 +442,9 @@ export default function HomePage() {
                         <MessageSquare className="h-4 w-4 text-accent" />
                       </div>
                       <div className="bg-accent/10 rounded-lg p-3 flex-1">
-                        <p className="text-sm">How does the useState hook work?</p>
+                        <p className="text-sm">
+                          How does the useState hook work?
+                        </p>
                       </div>
                     </div>
 
@@ -384,20 +453,27 @@ export default function HomePage() {
                         <Brain className="h-4 w-4 text-primary" />
                       </div>
                       <div className="bg-primary/10 rounded-lg p-3 flex-1">
-                        <p className="text-sm">The useState hook creates a state variable...</p>
+                        <p className="text-sm">
+                          The useState hook creates a state variable...
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <p className="text-muted-foreground">
-                    Ask questions about the codebase and get intelligent, contextual answers
+                    Ask questions about the codebase and get intelligent,
+                    contextual answers
                   </p>
                 </div>
               </Card>
             </div>
           </div>
 
-          <div className={`text-center mt-16 ${visibleSections.has("code") ? "animate-scale-in" : "opacity-0"}`}>
+          <div
+            className={`text-center mt-16 ${
+              visibleSections.has("code") ? "animate-scale-in" : "opacity-0"
+            }`}
+          >
             <div className="inline-flex items-center space-x-8 bg-gradient-to-r from-accent/10 to-primary/10 rounded-full px-8 py-4">
               <div className="flex items-center space-x-2">
                 <Zap className="h-5 w-5 text-accent" />
@@ -421,7 +497,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section
         ref={(el) => {
-          sectionRefs.current["cta"] = el
+          sectionRefs.current["cta"] = el;
         }}
         id="cta"
         className="section-padding relative overflow-hidden"
@@ -429,7 +505,11 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-accent/10 via-primary/10 to-accent/10"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className={`${visibleSections.has("cta") ? "animate-scale-in" : "opacity-0"}`}>
+          <div
+            className={`${
+              visibleSections.has("cta") ? "animate-scale-in" : "opacity-0"
+            }`}
+          >
             <h2 className="text-5xl md:text-7xl font-bold mb-8">
               Ready to <span className="gradient-text">Revolutionize</span>
               <br />
@@ -437,7 +517,8 @@ export default function HomePage() {
             </h2>
 
             <p className="text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Join thousands of developers who are already using CodeVec to understand code faster
+              Join thousands of developers who are already using CodeVec to
+              understand code faster
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -472,26 +553,33 @@ export default function HomePage() {
             <h3 className="text-3xl font-bold mb-4">
               Code<span className="gradient-text">Vec</span>
             </h3>
-            <p className="text-muted-foreground mb-8 text-lg">The future of code understanding is here</p>
+            <p className="text-muted-foreground mb-8 text-lg">
+              The future of code understanding is here
+            </p>
 
             <div className="flex justify-center space-x-8">
-              <a href="https://github.com/hack-codevec/codevec.git" target="_blank">
-
-              <Button variant="ghost" size="lg" className="group">
-                <Github className="h-5 w-5 mr-2 group-hover:text-accent transition-colors" />
-                GitHub
-              </Button>
+              <a
+                href="https://github.com/hack-codevec/codevec.git"
+                target="_blank"
+              >
+                <Button variant="ghost" size="lg" className="group">
+                  <Github className="h-5 w-5 mr-2 group-hover:text-accent transition-colors" />
+                  GitHub
+                </Button>
               </a>
-              <a href="https://github.com/hack-codevec/codevec.git" target="_blank">
-              <Button variant="ghost" size="lg" className="group">
-                <GitBranch className="h-5 w-5 mr-2 group-hover:text-accent transition-colors" />
-                Contribute
-              </Button>
+              <a
+                href="https://github.com/hack-codevec/codevec.git"
+                target="_blank"
+              >
+                <Button variant="ghost" size="lg" className="group">
+                  <GitBranch className="h-5 w-5 mr-2 group-hover:text-accent transition-colors" />
+                  Contribute
+                </Button>
               </a>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

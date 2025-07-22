@@ -6,7 +6,6 @@ import { UserButton } from "./User";
 import { createClient } from "@/utils/supabase/client";
 
 function Topbar() {
-  const connected = true;
   const [userData, setUserData] = useState({
       email: "",
       name: "",
