@@ -134,7 +134,6 @@ const Playground = ({ project_id }: PlaygroundProps) => {
 
   const fetchProjectDetails = async () => {
     try {
-      console.log("Fetching project details for:", project_id)
 
       const { data, error } = await supabase.from("project").select("*").eq("id", project_id).single()
 
@@ -268,7 +267,6 @@ const Playground = ({ project_id }: PlaygroundProps) => {
 
   const handleProjectStatusUpdate = (newStatus: boolean) => {
     if (newStatus && !initializationCompleteRef.current) {
-      console.log("Backend initialization completed - waiting for UI completion...")
       initializationCompleteRef.current = true
       setHasInitialized(true)
       return false
