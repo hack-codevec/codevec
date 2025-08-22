@@ -104,7 +104,7 @@ function ChatMessage({
           {isUser ? userEmail?.charAt(0).toUpperCase() : <Bot size={16} />}
         </AvatarFallback>
       </Avatar>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden scrollbar-subtle">
         <div className="text-sm font-medium mb-2 text-card-foreground">{isUser ? "You" : "Assistant"}</div>
         <div className="text-foreground leading-relaxed overflow-hidden">
           {isUser ? <p>{content}</p> : <MarkdownMessage content={content} isStreaming={isStreaming} />}
@@ -333,7 +333,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
         <ResizablePanel defaultSize={35} minSize={30} className="flex flex-col">
           <div className="flex flex-col h-full">
             {/* Enhanced header */}
-            <div className="px-4 py-3 border-b border-border bg-card/50">
+            <div className="px-4 py-2 bg-card/50">
               <div className="flex items-center gap-2">
                 <Database className="w-4 h-4 text-accent" />
                 <h2 className="font-semibold text-card-foreground">AI Assistant</h2>
@@ -348,7 +348,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
             </div>
 
             {/* Message display area */}
-            <div className="flex-1 overflow-y-auto px-4 py-4">
+            <div className="flex-1 overflow-y-auto scrollbar-subtle px-4 py-4 ">
               <div className="max-w-3xl w-full mx-auto space-y-4">
                 {/* Welcome message */}
                 {!lastUserQuery && !currentMessage && (
@@ -361,7 +361,7 @@ const Playground = ({ project_id }: PlaygroundProps) => {
                       Ask me anything about your project, code, or need help with development tasks.
                     </p>
                     {hasInitialized && (
-                      <p className="text-xs text-accent mt-2">✨ Project successfully deployed and ready to use!</p>
+                      <p className="text-xs text-accent mt-2">Project successfully deployed and ready to use!</p>
                     )}
                   </div>
                 )}
