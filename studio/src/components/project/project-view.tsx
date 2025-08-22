@@ -133,7 +133,7 @@ export function ProjectsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-card-foreground">Your Projects</h1>
-          <p className="text-muted-foreground">Manage and deploy your GitHub repositories</p>
+          <p className="text-muted-foreground">Transform your repositories into knowledge hubs</p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">

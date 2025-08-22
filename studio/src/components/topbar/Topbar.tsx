@@ -42,7 +42,7 @@ function Topbar() {
         }
       </div>
 
-      <div className="col-span-3 flex flex-row items-center justify-end gap-3">
+      <div className="col-span-3 flex flex-row items-center justify-end gap-3 pr-2">
       <ThemeToggle />
       </div>
     </div>

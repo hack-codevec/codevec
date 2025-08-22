@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Github, MoreVertical, Settings, Trash2 } from "lucide-react"
+import { BotMessageSquare, Github, MoreVertical, Settings, Trash2 } from "lucide-react"
 import type { Project } from "@/types/project"
 
 interface ProjectCardProps {
@@ -60,11 +60,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     }
   }, [showMenu])
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Don't navigate if clicking on buttons or menu
-    if ((e.target as HTMLElement).closest("button")) {
-      return
-    }
+  const handleClick = (e: React.MouseEvent) => {
     router.push(`/projects/${project.id}`)
   }
 
@@ -81,8 +77,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Card
       ref={cardRef}
-      className="glass-morphism border-border/20 hover:border-accent/30 transition-all duration-300 group hover:shadow-lg hover:shadow-black/5 interactive-card p-4 relative cursor-pointer"
-      onClick={handleCardClick}
+      className="glass-morphism border-border/20 hover:border-accent/30 transition-all duration-300 group hover:shadow-lg hover:shadow-black/5 p-4 relative"
     >
       {/* Status indicator */}
       <div className="absolute top-2 right-2 flex items-center gap-2">
@@ -117,13 +112,22 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <Button
           variant="outline"
           size="sm"
-          className="flex-1 h-8 text-xs hover:bg-accent/5 hover:border-accent/30 hover:text-accent bg-transparent"
+          className="flex-1 h-8 text-xs hover:bg-accent/5 hover:border-accent/30 cursor-pointer not-visited:hover:text-accent bg-transparent"
           onClick={(e) =>
             handleButtonClick(e, () => window.open(`https://github.com/${project.base_git_url}`, "_blank"))
           }
         >
           <Github className="w-3 h-3 mr-1" />
           Code
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 h-8 text-xs hover:bg-accent/5 hover:border-accent/30 cursor-pointer hover:text-accent bg-transparent"
+          onClick={(e) => handleClick(e)}
+        >
+          <BotMessageSquare className="w-3 h-3 mr-1" />
+          Chat
         </Button>
       </div>
 

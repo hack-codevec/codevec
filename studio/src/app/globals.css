@@ -88,7 +88,8 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -96,32 +97,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent), var(--primary));
+  background: var(--muted-foreground);
   border-radius: 10px;
 }
 
-/* Subtle scrollbar utility */
-.scrollbar-subtle::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-subtle::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-subtle::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
-}
-
-.scrollbar-subtle::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
 }
 
-.scrollbar-subtle {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
 
 /* Particle System */
 .particles {
